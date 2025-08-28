@@ -9,5 +9,13 @@
         <module name="Back_End" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="Front_End" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Back_End" options="-parameters" />
+    </option>
   </component>
 </project>
