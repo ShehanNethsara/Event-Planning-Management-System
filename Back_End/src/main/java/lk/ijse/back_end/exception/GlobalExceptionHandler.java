@@ -1,7 +1,6 @@
 package lk.ijse.back_end.exception;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import lk.ijse.back_end.dto.APIResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

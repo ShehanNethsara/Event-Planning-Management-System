@@ -1,9 +1,6 @@
 package lk.ijse.back_end.service;
 
 
-import lk.ijse.back_end.dto.AuthDTO;
-import lk.ijse.back_end.dto.AuthResponseDTO;
-import lk.ijse.back_end.dto.RegisterDTO;
 import lk.ijse.back_end.entity.Role;
 import lk.ijse.back_end.entity.User;
 import lk.ijse.back_end.repository.UserRepository;
