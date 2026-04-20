@@ -2,23 +2,25 @@ package lk.ijse.back_end.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-@Builder
 
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  long id;
-    private  String username;
+    private Long id;
+
+    private String name;
+
+    @Column(unique = true)
     private String email;
-    private  String password;
+
+    private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
