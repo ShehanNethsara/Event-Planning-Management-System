@@ -1,15 +1,21 @@
 package lk.ijse.back_end.util;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.stereotype.Component;
+
+import java.util.Date;
+
 @Component
 public class JwtUtil {
-    private String secret = "EventProSecretKey123456789012345678901234567890"; // 32+ characters
+    private String secret = "EventProSecretKey2026"; // Meka secure thiyaganna
 
     public String generateToken(String email, String role) {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 Hours
                 .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
     }
