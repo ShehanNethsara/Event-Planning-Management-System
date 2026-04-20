@@ -6,6 +6,6 @@ import lk.ijse.back_end.dto.LoginRequestDTO;
 import lk.ijse.back_end.dto.UserDTO;
 
 public interface AuthService {
-    UserDTO registerUser(UserDTO userDTO);
+    UserDTO register(UserDTO userDTO);
     AuthResponseDTO login(LoginRequestDTO loginRequest);
 }

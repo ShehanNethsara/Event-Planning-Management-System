@@ -1,7 +1,5 @@
 package lk.ijse.back_end.dto;
 
-
-import lk.ijse.back_end.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,10 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+
+public class FeedbackDTO {
     private Long id;
-    private String name;
-    private String email;
-    private String password;
-    private Role role;
+    private int rating;
+    private String comment;
+    private Long clientId;
 }
