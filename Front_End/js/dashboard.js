@@ -1,24 +1,24 @@
-// Backend API URL
+// Backend API URL - Ensure this matches your Spring Boot server port
 const API_BASE_URL = 'http://localhost:8080/api/v1/events';
 
 document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('token');
-    const userRole = localStorage.getItem('userRole');
+    const userRole = localStorage.getItem('userRole'); // Expected values: 'ADMIN', 'CLIENT', or 'STAFF'
 
-    // 1. Check if user is logged in
+    // 1. Session Check
     if (!token) {
         alert("Session expired. Please login again.");
         window.location.href = 'login.html';
         return;
     }
 
-    // Display user role or name
+    // Display User Role in Navbar
     document.getElementById('userDisplayName').innerText = `Welcome, ${userRole || 'User'}`;
 
     // 2. Initial Data Load
     loadEvents();
 
-    // 3. Handle Event Booking Submission
+    // 3. Handle Event Booking Submission (For Clients)
     const eventForm = document.getElementById('eventForm');
     if (eventForm) {
         eventForm.addEventListener('submit', function(e) {
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 type: document.getElementById('eventType').value,
                 date: document.getElementById('eventDate').value,
                 description: document.getElementById('eventDescription').value,
-                clientId: 1 // In production, this should come from user session/token
+                clientId: 1 // In production, this should be extracted from the token/session
             };
 
             fetch(`${API_BASE_URL}/book`, {
@@ -44,16 +44,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (response.ok) {
                         alert("Event Booked Successfully!");
 
-                        // Close the Modal
+                        // Hide the Bootstrap Modal
                         const modalElement = document.getElementById('addEventModal');
                         const modal = bootstrap.Modal.getInstance(modalElement);
-                        modal.hide();
+                        if (modal) modal.hide();
 
-                        // Reset form and reload table
                         eventForm.reset();
-                        loadEvents();
+                        loadEvents(); // Refresh table data
                     } else {
-                        alert("Failed to book event. Please check your connection.");
+                        alert("Failed to book event. Please check your connection or permissions.");
                     }
                 })
                 .catch(error => {
@@ -64,9 +63,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Function to Fetch and Load Events to Table
+/**
+ * Function to Fetch and Load Events into the Table
+ * Dynamically adds 'Approve' button if user is an ADMIN
+ */
 function loadEvents() {
     const token = localStorage.getItem('token');
+    const userRole = localStorage.getItem('userRole');
 
     fetch(`${API_BASE_URL}/all`, {
         method: 'GET',
@@ -80,12 +83,27 @@ function loadEvents() {
         })
         .then(data => {
             const tableBody = document.getElementById('eventTableBody');
-            tableBody.innerHTML = ''; // Clear current rows
+            tableBody.innerHTML = ''; // Clear existing table rows
 
             let pendingCount = 0;
 
             data.forEach(event => {
                 if (event.status === 'PENDING') pendingCount++;
+
+                // Logic to show 'Approve' button only for ADMINs on PENDING events
+                let actionButtons = '';
+                if (userRole === 'ADMIN' && event.status === 'PENDING') {
+                    actionButtons = `
+                    <button class="btn btn-sm btn-success me-1" onclick="updateStatus(${event.id}, 'APPROVED')">
+                        <i class="bi bi-check-circle"></i> Approve
+                    </button>`;
+                }
+
+                // Always show delete/cancel button
+                actionButtons += `
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteEvent(${event.id})">
+                    <i class="bi bi-trash"></i>
+                </button>`;
 
                 tableBody.innerHTML += `
                 <tr>
@@ -98,15 +116,13 @@ function loadEvents() {
                         </span>
                     </td>
                     <td class="text-center">
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteEvent(${event.id})">
-                            <i class="bi bi-trash"></i>
-                        </button>
+                        ${actionButtons}
                     </td>
                 </tr>
             `;
             });
 
-            // Update Statistics
+            // Update Dashboard Statistics
             document.getElementById('totalEvents').innerText = data.length;
             document.getElementById('pendingCount').innerText = pendingCount;
         })
@@ -115,7 +131,35 @@ function loadEvents() {
         });
 }
 
-// Helper function to color code status
+/**
+ * Function to update event status (Approve/Cancel)
+ * Used primarily by Admins
+ */
+function updateStatus(eventId, newStatus) {
+    const token = localStorage.getItem('token');
+
+    if (!confirm(`Are you sure you want to set this event to ${newStatus}?`)) return;
+
+    fetch(`${API_BASE_URL}/${eventId}/status?status=${newStatus}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+        .then(res => {
+            if (res.ok) {
+                alert(`Event ${newStatus} Successfully!`);
+                loadEvents(); // Refresh the table
+            } else {
+                alert("Failed to update status. Check Admin permissions.");
+            }
+        })
+        .catch(err => console.error("Update Error:", err));
+}
+
+/**
+ * Returns Bootstrap badge classes based on event status
+ */
 function getStatusClass(status) {
     switch (status) {
         case 'PENDING': return 'bg-warning text-dark';
@@ -126,16 +170,23 @@ function getStatusClass(status) {
     }
 }
 
-// Logout Function
+/**
+ * Clears local storage and redirects to login
+ */
 function logout() {
-    if(confirm("Are you sure you want to logout?")) {
+    if (confirm("Are you sure you want to logout?")) {
         localStorage.removeItem('token');
         localStorage.removeItem('userRole');
         window.location.href = 'login.html';
     }
 }
 
-// Delete Event Logic (Optional Placeholder)
+/**
+ * Placeholder for Delete Event Logic
+ */
 function deleteEvent(eventId) {
-    alert("Delete functionality can be added here for Event ID: " + eventId);
+    if (confirm("Are you sure you want to cancel/delete this event?")) {
+        // You can implement an actual DELETE fetch call here similar to updateStatus
+        updateStatus(eventId, 'CANCELLED');
+    }
 }
