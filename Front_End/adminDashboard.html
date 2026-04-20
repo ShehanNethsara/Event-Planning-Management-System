@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - EventPro</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-dark bg-primary">
+  <div class="container">
+    <span class="navbar-brand">Admin Control Panel</span>
+    <button onclick="logout()" class="btn btn-light btn-sm">Logout</button>
+  </div>
+</nav>
+<div class="container mt-4">
+  <div class="card p-4">
+    <h4>Manage All Requests</h4>
+    <table class="table mt-3">
+      <thead><tr><th>Client</th><th>Event</th><th>Date</th><th>Action</th></tr></thead>
+      <tbody id="adminTableBody"></tbody>
+    </table>
+  </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

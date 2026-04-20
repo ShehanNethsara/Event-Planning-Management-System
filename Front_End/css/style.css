@@ -1,0 +1,5 @@
+:root { --main-bg: #0f172a; --card-bg: #1e293b; --text: #f8fafc; --primary: #3b82f6; }
+body { background: var(--main-bg); color: var(--text); font-family: 'Poppins', sans-serif; }
+.card { background: var(--card-bg); border: none; transition: 0.3s; }
+.card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+.btn-primary { background: var(--primary); border: none; }
