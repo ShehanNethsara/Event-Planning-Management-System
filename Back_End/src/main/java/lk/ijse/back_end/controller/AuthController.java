@@ -1,41 +1,27 @@
 package lk.ijse.back_end.controller;
 
-import lk.ijse.back_end.dto.APIResponse;
-import lk.ijse.back_end.dto.AuthDTO;
-import lk.ijse.back_end.dto.RegisterDTO;
-import lk.ijse.back_end.service.AuthService;
-import lombok.RequiredArgsConstructor;
+import lk.ijse.back_end.dto.UserDTO;
+import lk.ijse.back_end.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
-@RequiredArgsConstructor
-@CrossOrigin
+@RequestMapping("/api/v1/auth")
+@CrossOrigin // Frontend eka ekka connect wenna ona nisa
 public class AuthController {
-    private final AuthService authService;
+
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<APIResponse> registerUser(
-            @RequestBody RegisterDTO registerDTO){
-        return ResponseEntity.ok(
-                new APIResponse(
-                        200,
-                        "User Registered Successfully",
-                        authService.register(registerDTO)
-                )
-        );
+    public ResponseEntity<?> register(@RequestBody UserDTO userDTO) {
+        try {
+            UserDTO registeredUser = userService.registerUser(userDTO);
+            return ResponseEntity.ok(registeredUser);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Registration failed: " + e.getMessage());
+        }
     }
 
-
-    @PostMapping("/login")
-    public ResponseEntity<APIResponse> login(@RequestBody AuthDTO authDTO) {
-        return ResponseEntity.ok(
-                new APIResponse(
-                        200,
-                        "OK",
-                        authService.authenticate(authDTO)
-                )
-        );
-    }
 }
