@@ -1,12 +1,13 @@
 package lk.ijse.back_end.service;
 
-import lk.ijse.back_end.dto.EventDTO;
 
+import lk.ijse.back_end.dto.EventDTO;
 import java.util.List;
 
 public interface EventService {
-    EventDTO saveEvent(EventDTO dto);
+    EventDTO saveEvent(EventDTO eventDTO);
     List<EventDTO> getAllEvents();
-    EventDTO updateStatus(Long id, String status);
+    EventDTO updateEventStatus(Long id, String status);
     void deleteEvent(Long id);
+    List<EventDTO> getEventsByUserId(Long userId);
 }
