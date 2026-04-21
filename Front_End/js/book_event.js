@@ -1,8 +1,10 @@
 $(document).ready(function() {
     const token = localStorage.getItem("token");
+    const storedUserId = localStorage.getItem("userId");
 
-    // 1. පේජ් එකට එද්දීම ලොග් වෙලාද කියලා බලනවා
-    if (!token) {
+    // 1. පද්ධතියට ඇතුළු වී ඇත්දැයි පරීක්ෂා කිරීම
+    if (!token || !storedUserId || storedUserId === "undefined") {
+        alert("Session expired. Please login again.");
         window.location.href = 'login.html';
         return;
     }
@@ -10,34 +12,30 @@ $(document).ready(function() {
     $("#bookEventForm").submit(function(e) {
         e.preventDefault();
 
-        // --- වැදගත් ---
-        // ඔයා MySQL එකේ SELECT query එක ගැහුවම ආපු අලුත් ID එක මෙතනට දාන්න.
-        // මම දැනට 18 කියලා දානවා (ඔයාගේ Table එකේ අගය බලන්න).
-        const currentUserId = 22;
+        // localStorage එකේ තියෙන string ID එක integer එකක් කරනවා
+        const currentUserId = parseInt(storedUserId);
 
         // 2. Form එකේ දත්ත ලබා ගැනීම
         const eventData = {
             title: $("#eventTitle").val(),
             type: $("#eventType").val(),
-            date: $("#eventDate").val(), // Format: yyyy-MM-dd
-            description: $("#eventDesc").val() || $("#eventDescription").val(),
+            date: $("#eventDate").val(),
+            description: $("#eventDesc").val() || $("#eventDescription").val() || "",
             status: "PENDING",
-            clientId: currentUserId
+            clientId: currentUserId // දැන් මෙතනට නිවැරදි අංකය යනවා
         };
 
-        // 3. සරල Validation එකක් (හිස්ව Submit කිරීම වැළැක්වීමට)
         if (!eventData.title || !eventData.date) {
             alert("Please fill in the Event Title and Date!");
             return;
         }
 
-        console.log("Attempting to save event:", eventData);
+        console.log("Sending Event Data:", eventData);
 
-        // Button එක Disable කරමු double clicks වළක්වන්න
         const submitBtn = $(this).find('button[type="submit"]');
         submitBtn.prop('disabled', true).text('Processing...');
 
-        // 4. Backend එකට AJAX Request එක යැවීම
+        // 3. Backend එකට AJAX Request එක යැවීම
         $.ajax({
             url: "http://localhost:8080/api/v1/events/save",
             method: "POST",
@@ -47,7 +45,6 @@ $(document).ready(function() {
             },
             data: JSON.stringify(eventData),
             success: function(response) {
-                console.log("Server Response:", response);
                 alert("Success! Your event request has been sent to Admin. 🚀");
                 window.location.href = "user_dashboard.html";
             },
@@ -57,11 +54,8 @@ $(document).ready(function() {
 
                 let errorMsg = "Failed to book event.";
                 if (err.status === 500) {
-                    errorMsg = "Internal Server Error (500). Please check if Client ID " + currentUserId + " exists in Database.";
-                } else if (err.responseJSON && err.responseJSON.message) {
-                    errorMsg = err.responseJSON.message;
+                    errorMsg = "Internal Server Error (500). The server couldn't link the event to User ID: " + currentUserId;
                 }
-
                 alert("Error: " + errorMsg);
             }
         });

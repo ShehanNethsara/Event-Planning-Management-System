@@ -20,8 +20,10 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public List<InvoiceDTO> getInvoicesByClientEmail(String email) {
-        // Repository එකේ අපි හදපු findByClientEmail එක පාවිච්චි කරනවා
+        // Repository එකේ @Query එක හරහා Email එකට අදාළ Invoices ටික ගන්නවා
+//        List<Invoice> invoices = invoiceRepository.findByClientEmail(email);
         List<Invoice> invoices = invoiceRepository.findByClientEmail(email);
+        System.out.println("DEBUG: Found " + invoices.size() + " invoices for email: " + email);
 
         return invoices.stream().map(inv -> {
             InvoiceDTO dto = new InvoiceDTO();
@@ -30,9 +32,14 @@ public class InvoiceServiceImpl implements InvoiceService {
             dto.setIssuedDate(inv.getIssuedDate());
             dto.setStatus(inv.getStatus());
 
-            // Event එකේ නම DTO එකට දාගමු
             if (inv.getEvent() != null) {
+                dto.setEventId(inv.getEvent().getId());
                 dto.setEventTitle(inv.getEvent().getTitle());
+
+                // Event එකේ Date එක String එකක් විදිහට Frontend එකට පහසුවෙන් යවමු
+                if (inv.getEvent().getDate() != null) {
+                    dto.setEventDate(inv.getEvent().getDate().toString());
+                }
             }
 
             return dto;

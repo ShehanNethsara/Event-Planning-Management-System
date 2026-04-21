@@ -1,131 +1,191 @@
-$(document).ready(function() {
-    // 1. පද්ධතියට ලොග් වෙලාද බලමු
-    const token = localStorage.getItem('token');
-    const userEmail = localStorage.getItem('userEmail');
+const VENDOR_API = 'http://localhost:8080/api/v1/vendors';
+const EVENT_API = 'http://localhost:8080/api/v1/events';
+const token = localStorage.getItem('token');
+const userEmail = localStorage.getItem('userEmail');
 
+$(document).ready(function() {
+    // 1. Auth Guard - ලොග් වෙලා නැත්නම් පන්නන්න
     if (!token) {
         window.location.href = 'login.html';
         return;
     }
 
-    // ආරම්භයේදී දත්ත ලෝඩ් කරමු
-    loadServiceRequests();
-    loadMyServices();
-
-    // --- 2. NAVIGATION (TAB SWITCHING) LOGIC ---
-
-    // Dashboard (Requests) පෙන්වීමට
-    $("#showRequests").click(function(e) {
-        e.preventDefault();
-        setActiveTab($(this), $("#requestsSection"));
-        setInactiveTab($("#showMyServices"), $("#myServicesSection"));
-    });
-
-    // My Services පෙන්වීමට
-    $("#showMyServices").click(function(e) {
-        e.preventDefault();
-        setActiveTab($(this), $("#myServicesSection"));
-        setInactiveTab($("#showRequests"), $("#requestsSection"));
-    });
-
-    function setActiveTab(btn, section) {
-        btn.addClass("active-link bg-primary text-white").removeClass("text-white-50");
-        section.fadeIn(400);
+    // පේජ් එකේ තියෙන Table/Container අනුව අදාළ දත්ත Load කරමු
+    if ($("#vendorContainer").length) {
+        loadVendors(); // Admin සඳහා Vendors පෙන්වීමට
     }
 
-    function setInactiveTab(btn, section) {
-        btn.removeClass("active-link bg-primary text-white").addClass("text-white-50");
-        section.hide();
+    if ($("#vendorRequestsBody").length) {
+        loadVendorTasks(); // Vendor සඳහා Requests පෙන්වීමට
     }
 
-    // --- 3. සේවාවන් ඇතුළත් කිරීමේ LOGIC ---
-    $("#vendorServiceForm").on("submit", function(e) {
+    // 2. Vendor Register Form එක Submit කිරීම (Admin Side)
+    $("#vendorRegForm").on("submit", function(e) {
         e.preventDefault();
 
-        const serviceData = {
-            category: $("#serviceCat").val(),
-            price: $("#servicePrice").val(),
-            vendorEmail: userEmail,
-            status: "ACTIVE"
+        const vendorData = {
+            name: $("#vName").val(),
+            category: $("#vCat").val(),
+            contact: $("#vPhone").val(),
+            price: parseFloat($("#vPrice").val())
         };
 
-        // දැනට පේජ් එකේ ටේබල් එකට දත්ත එකතු කිරීම (Frontend only)
-        const newServiceRow = `
-            <tr>
-                <td><span class="fw-bold text-dark">${serviceData.category}</span></td>
-                <td>LKR ${serviceData.price}</td>
-                <td><span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Active</span></td>
-                <td>Expert</td>
-            </tr>`;
+        const submitBtn = $(this).find('button[type="submit"]');
+        submitBtn.prop('disabled', true).text('Registering...');
 
-        $("#myServicesList").prepend(newServiceRow);
-
-        // Modal එක වසා පිරිසිදු කිරීම
-        $("#addServiceModal").modal('hide');
-        $("#vendorServiceForm")[0].reset();
-        alert(serviceData.category + " service has been added to your profile!");
+        $.ajax({
+            url: VENDOR_API + "/add",
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            },
+            data: JSON.stringify(vendorData),
+            success: function(response) {
+                alert("Vendor Registered Successfully! 🚀");
+                $("#addVendorModal").modal('hide');
+                $("#vendorRegForm")[0].reset();
+                loadVendors();
+            },
+            error: function(err) {
+                alert("Failed to register vendor.");
+            },
+            complete: function() {
+                submitBtn.prop('disabled', false).text('Register Now');
+            }
+        });
     });
 });
 
-// --- 4. DATA LOADING FUNCTIONS ---
+// --- ADMIN FUNCTIONS ---
 
-function loadServiceRequests() {
-    // Admin විසින් මේ Vendor ට අදාළව එවන ලද වැඩ (Tasks)
-    // දැනට Dummy Data ලෙස පෙන්වමු
-    const dummyRequests = [
-        { id: 101, event: 'Wedding Ceremony', date: '2026-05-20', service: 'Catering', status: 'PENDING' },
-        { id: 102, event: 'Corporate Launch', date: '2026-06-12', service: 'Photography', status: 'PENDING' }
-    ];
+function loadVendors(filter = "ALL") {
+    const url = (filter === "ALL") ? `${VENDOR_API}/all` : `${VENDOR_API}/category/${filter}`;
 
-    let rows = "";
-    dummyRequests.forEach(req => {
-        rows += `
-        <tr>
-            <td class="fw-bold text-primary">#SRQ-${req.id}</td>
-            <td><div class="fw-bold">${req.event}</div></td>
-            <td><i class="far fa-calendar-alt me-2 text-muted"></i>${req.date}</td>
-            <td><span class="badge bg-info bg-opacity-10 text-info rounded-pill px-3">${req.service}</span></td>
-            <td><span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">${req.status}</span></td>
-            <td>
-                <button class="btn btn-sm btn-success rounded-pill px-3 shadow-sm" onclick="acceptReq(${req.id})">
-                    <i class="fas fa-check me-1"></i> Accept
-                </button>
-            </td>
-        </tr>`;
+    $.ajax({
+        url: url,
+        method: "GET",
+        headers: { "Authorization": "Bearer " + token },
+        success: function(data) {
+            const container = $("#vendorContainer");
+            container.empty();
+
+            if (!data || data.length === 0) {
+                container.html('<div class="text-center py-5 text-muted">No vendors found.</div>');
+                $("#vendorCount").text("Total: 0");
+                return;
+            }
+
+            data.forEach(vendor => {
+                const card = `
+                    <div class="col-md-4 mb-4">
+                        <div class="card vendor-card border-0 shadow-sm p-3">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
+                                    <i class="${getCategoryIcon(vendor.category)} text-primary fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0">${vendor.name}</h6>
+                                    <span class="badge bg-light text-primary small">${vendor.category}</span>
+                                </div>
+                            </div>
+                            <div class="small text-muted mb-3">
+                                <p class="mb-1"><i class="fas fa-phone-alt me-2"></i>${vendor.contact || 'N/A'}</p>
+                                <p class="mb-0"><i class="fas fa-tag me-2"></i>LKR ${vendor.price ? vendor.price.toLocaleString() : '0'}</p>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-danger w-100 rounded-pill" onclick="deleteVendor(${vendor.id})">
+                                    <i class="fas fa-trash me-1"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>`;
+                container.append(card);
+            });
+            $("#vendorCount").text("Total: " + data.length);
+        }
     });
-    $("#vendorRequestsBody").html(rows);
 }
 
-function loadMyServices() {
-    // Vendor විසින් පද්ධතියට ලබා දෙන සේවාවන්
-    const dummyServices = [
-        { category: 'Photography', price: '75,000 - 150,000', status: 'ACTIVE', exp: 'Professional' }
-    ];
-
-    let rows = "";
-    dummyServices.forEach(s => {
-        rows += `
-        <tr>
-            <td><span class="fw-bold text-dark">${s.category}</span></td>
-            <td>LKR ${s.price}</td>
-            <td><span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">${s.status}</span></td>
-            <td>${s.exp}</td>
-        </tr>`;
-    });
-    $("#myServicesList").html(rows);
+function deleteVendor(id) {
+    if (confirm("Are you sure you want to remove this vendor?")) {
+        $.ajax({
+            url: `${VENDOR_API}/${id}`,
+            method: "DELETE",
+            headers: { "Authorization": "Bearer " + token },
+            success: function() {
+                alert("Vendor removed!");
+                loadVendors();
+            },
+            error: function() { alert("Could not delete vendor."); }
+        });
+    }
 }
 
-// --- 5. INTERACTION FUNCTIONS ---
+// --- VENDOR DASHBOARD FUNCTIONS ---
 
-function acceptReq(id) {
-    if(confirm("Do you want to accept this service request?")) {
-        alert("Request #" + id + " Accepted! Admin will contact you shortly.");
+function loadVendorTasks() {
+    const vEmail = localStorage.getItem('userEmail');
+
+    $.ajax({
+        url: `${EVENT_API}/vendor-requests?email=${vEmail}`,
+        method: "GET",
+        headers: { "Authorization": "Bearer " + token },
+        success: function(events) {
+            let rows = "";
+            if (events.length === 0) {
+                rows = '<tr><td colspan="4" class="text-center py-4 text-muted">No pending job requests.</td></tr>';
+            } else {
+                events.forEach(event => {
+                    rows += `
+                    <tr>
+                        <td class="fw-bold">#${event.id}</td>
+                        <td>${event.type}</td>
+                        <td><i class="far fa-calendar-alt me-2"></i>${event.date}</td>
+                        <td class="text-center">
+                            <button class="btn btn-success btn-sm rounded-pill px-3" onclick="respondToRequest(${event.id}, 'CONFIRMED')">Accept</button>
+                            <button class="btn btn-outline-danger btn-sm rounded-pill px-3 ms-1" onclick="respondToRequest(${event.id}, 'REJECTED')">Reject</button>
+                        </td>
+                    </tr>`;
+                });
+            }
+            $("#vendorRequestsBody").html(rows);
+            $("#reqCount").text(events.length + " New");
+        }
+    });
+}
+
+function respondToRequest(eventId, newStatus) {
+    if(!confirm(`Do you want to ${newStatus.toLowerCase()} this request?`)) return;
+
+    $.ajax({
+        url: `${EVENT_API}/${eventId}/status?status=${newStatus}`,
+        method: "PUT",
+        headers: { "Authorization": "Bearer " + token },
+        success: function() {
+            alert("Success! Status updated to " + newStatus);
+            loadVendorTasks();
+        },
+        error: function() { alert("Error updating status."); }
+    });
+}
+
+// Global functions for HTML access
+function filterVendors() {
+    loadVendors($("#filterType").val());
+}
+
+function getCategoryIcon(cat) {
+    switch(cat) {
+        case 'CATERING': return 'fas fa-utensils';
+        case 'PHOTOGRAPHY': return 'fas fa-camera';
+        case 'MUSIC': return 'fas fa-music';
+        case 'DECORATION': return 'fas fa-holly-berry';
+        default: return 'fas fa-store';
     }
 }
 
 function logout() {
-    if(confirm("Are you sure you want to logout from Vendor Portal?")) {
-        localStorage.clear();
-        window.location.href = 'login.html';
-    }
+    localStorage.clear();
+    window.location.href = 'login.html';
 }

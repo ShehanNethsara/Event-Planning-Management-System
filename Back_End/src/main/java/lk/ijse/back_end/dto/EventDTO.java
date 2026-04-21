@@ -21,4 +21,5 @@ public class EventDTO {
 
     private String status;
     private Long clientId;
+    private String location;
 }

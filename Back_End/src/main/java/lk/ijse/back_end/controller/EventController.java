@@ -11,43 +11,92 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/events")
-@CrossOrigin(origins = "*") // Frontend එකට ලේසියෙන් සම්බන්ධ වීමට
+@CrossOrigin(origins = "*") // Frontend එකේ සිට එන Requests වලට අවසර දීම
 public class EventController {
 
     @Autowired
     private EventService eventService;
 
-    // Frontend එකේ පාවිච්චි කරන්නේ /save නිසා මම මෙය වෙනස් කළා
+    /**
+     * 1. Client විසින් අලුතින් Event එකක් Book කිරීම
+     */
     @PostMapping("/save")
-    public ResponseEntity<?> create(@RequestBody EventDTO dto) {
+    public ResponseEntity<?> createEvent(@RequestBody EventDTO dto) {
         try {
-            // clientId එක null ද කියලා check කිරීම
             if (dto.getClientId() == null) {
-                return ResponseEntity.badRequest().body("Client ID is missing!");
+                return ResponseEntity.badRequest().body("Error: Client ID is missing!");
             }
             EventDTO savedEvent = eventService.createEvent(dto);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedEvent);
         } catch (Exception e) {
-            // මොකක් හරි වැරදුනොත් 500 error එකක් වෙනුවට හේතුව පෙන්වමු
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Backend Error: " + e.getMessage());
         }
     }
 
+    /**
+     * 2. සියලුම Events ලබා ගැනීම (Admin Panel එක සඳහා)
+     */
     @GetMapping("/all")
-    public ResponseEntity<List<EventDTO>> getAll() {
+    public ResponseEntity<List<EventDTO>> getAllEvents() {
         return ResponseEntity.ok(eventService.getAllEvents());
     }
 
-    // User Dashboard එකට තමන්ගේම events ටික ගන්න මේක ඕනේ
+    /**
+     * 3. තමන්ගේම Events පමණක් ලබා ගැනීම (Client Dashboard එක සඳහා)
+     */
     @GetMapping("/my-events")
-    public ResponseEntity<List<EventDTO>> getByClientEmail(@RequestParam String email) {
-        // ඇත්තටම email එකෙන් හොයන එක වඩාත් ආරක්ෂිතයි
+    public ResponseEntity<List<EventDTO>> getEventsByEmail(@RequestParam String email) {
         return ResponseEntity.ok(eventService.getEventsByClientEmail(email));
     }
 
+    /**
+     * 4. පවතින Event එකක Status එක පමණක් වෙනස් කිරීම (Cancel කිරීම වැනි දේට)
+     */
     @PutMapping("/{id}/status")
-    public ResponseEntity<EventDTO> updateStatus(@PathVariable Long id, @RequestParam String status) {
-        return ResponseEntity.ok(eventService.updateEventStatus(id, status));
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestParam String status) {
+        try {
+            EventDTO updated = eventService.updateEventStatus(id, status);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    /**
+     * 5. වැදගත්ම Endpoint එක: Vendor කෙනෙක් Assign කර එකවරම Status එක Approve කිරීම
+     * URL: PUT /api/v1/events/{id}/assign-vendor?vendorId=5&status=APPROVED
+     */
+    @PutMapping("/{id}/assign-vendor")
+    public ResponseEntity<?> assignVendorAndApprove(
+            @PathVariable Long id,
+            @RequestParam Long vendorId,
+            @RequestParam String status) {
+        try {
+            // Service එකේදී Event එකට අදාළ Vendor ව සොයාගෙන set කර status update කළ යුතුය.
+            EventDTO updatedEvent = eventService.assignVendorAndStatus(id, vendorId, status);
+            return ResponseEntity.ok(updatedEvent);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Assignment Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 6. Event එකක් Delete කිරීම
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteEvent(@PathVariable Long id) {
+        try {
+            eventService.deleteEvent(id);
+            return ResponseEntity.ok().body("Event deleted successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+    @GetMapping("/vendor-requests")
+    public ResponseEntity<List<EventDTO>> getRequestsForVendor(@RequestParam String email) {
+        // Status එක 'REQUESTED' සහ Vendor Email එක ගැලපෙන ඒවා පමණක් එවන්න
+        return ResponseEntity.ok(eventService.getRequestsByVendorEmail(email));
     }
 }

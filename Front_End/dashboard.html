@@ -8,6 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .nav-link { cursor: pointer; transition: 0.3s; }
+        .active-link { background: #0d6efd !important; color: white !important; font-weight: 600; }
+        .sidebar { z-index: 1000; transition: all 0.3s; }
+    </style>
 </head>
 <body class="bg-light">
 
@@ -16,19 +21,19 @@
         <div class="mb-5 text-center">
             <h3 class="fw-bold text-primary">VENDOR<span class="text-white">HUB</span></h3>
         </div>
-        <ul class="nav flex-column gap-2">
+        <ul class="nav flex-column gap-2" id="vendorNavbar">
             <li class="nav-item">
-                <a href="#" id="navDashboard" class="nav-link text-white active-link bg-primary rounded shadow-sm">
-                    <i class="fas fa-chart-line me-2"></i> Dashboard
+                <a class="nav-link text-white active-link rounded p-3" id="linkDashboard">
+                    <i class="fas fa-chart-line me-2"></i> Vendor Dashboard
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" id="navServices" class="nav-link text-white-50">
+                <a class="nav-link text-white-50 rounded p-3" id="linkServices">
                     <i class="fas fa-concierge-bell me-2"></i> My Services
                 </a>
             </li>
             <li class="nav-item mt-5">
-                <a href="#" onclick="logout()" class="nav-link text-danger">
+                <a onclick="logout()" class="nav-link text-danger p-3">
                     <i class="fas fa-sign-out-alt me-2"></i> Logout
                 </a>
             </li>
@@ -39,23 +44,21 @@
 
         <div id="sectionDashboard">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold text-dark">Service Requests</h2>
-                <span class="badge bg-primary rounded-pill px-3 py-2" id="reqCount">2 New</span>
+                <div>
+                    <h2 class="fw-bold text-dark">Service Requests</h2>
+                    <p class="text-muted small">Manage and respond to event bookings assigned by Admin.</p>
+                </div>
+                <span class="badge bg-primary rounded-pill px-3 py-2" id="reqCount">0 New</span>
             </div>
 
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                <div class="card-header bg-white p-4 border-0">
-                    <h5 class="fw-bold mb-0 text-muted">Incoming Requests (From Admin)</h5>
-                </div>
-                <div class="table-responsive px-4 pb-4">
+                <div class="table-responsive px-4 py-4">
                     <table class="table table-hover align-middle">
                         <thead class="bg-light text-muted small">
                         <tr>
-                            <th>ID</th>
+                            <th>EVENT ID</th>
                             <th>EVENT TYPE</th>
                             <th>PLANNED DATE</th>
-                            <th>SERVICE NEEDED</th>
-                            <th>STATUS</th>
                             <th class="text-center">ACTION</th>
                         </tr>
                         </thead>
@@ -68,64 +71,19 @@
 
         <div id="sectionServices" style="display: none;">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold text-dark">My Registered Services</h2>
-                <button class="btn btn-primary rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#addServiceModal">
-                    <i class="fas fa-plus me-2"></i> Register Service
-                </button>
+                <h2 class="fw-bold text-dark">My Services</h2>
             </div>
-
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                <div class="table-responsive p-4">
-                    <table class="table align-middle">
-                        <thead class="text-muted small">
-                        <tr>
-                            <th>SERVICE CATEGORY</th>
-                            <th>PRICE RANGE (LKR)</th>
-                            <th>EXPERIENCE</th>
-                            <th>STATUS</th>
-                        </tr>
-                        </thead>
-                        <tbody id="myServicesList">
-                        </tbody>
-                    </table>
-                </div>
+            <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
+                <i class="fas fa-tools fs-1 text-muted mb-3"></i>
+                <h5 class="text-muted">Registered services will appear here.</h5>
             </div>
         </div>
 
     </main>
 </div>
 
-<div class="modal fade" id="addServiceModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4 shadow-lg p-3">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="fw-bold">Register Your Service</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="vendorServiceForm">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Service Category</label>
-                        <select class="form-select border-0 bg-light" id="serviceCat" required>
-                            <option value="Food">Food / Catering</option>
-                            <option value="Music">Music / DJ</option>
-                            <option value="Photography">Photography</option>
-                            <option value="Decoration">Decoration</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Starting Price Range (LKR)</label>
-                        <input type="text" class="form-control border-0 bg-light" id="servicePrice" placeholder="e.g. 50,000 - 100,000" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold mt-3 shadow-sm">Submit Service</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/vendor.js"></script>
+<!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+<!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>-->
+<!--<script src="js/vendor.js"></script>-->
 </body>
 </html>

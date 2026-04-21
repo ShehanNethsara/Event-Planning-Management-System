@@ -1,125 +1,123 @@
 const API_URL = "http://localhost:8080/api/v1/events";
-const token = localStorage.getItem("token");
-const currentRole = localStorage.getItem('userRole');
-
-// 1. Security Check
-if (!currentRole || currentRole !== 'ADMIN') {
-    window.location.href = 'login.html';
-}
+const VENDOR_API = "http://localhost:8080/api/v1/vendors";
+const token = localStorage.getItem('token');
 
 $(document).ready(function() {
-    loadAllEvents();
-
-    // Admin නම Dashboard එකේ Display කිරීම
-    const email = localStorage.getItem('userEmail');
-    if(email) {
-        $('#adminName').text(email.split('@')[0].toUpperCase());
-    }
+    loadDashboardStats();
+    loadAllRequests();
 });
 
-// 2. සියලුම Events ලබා ගැනීම සහ Charts Update කිරීම
-function loadAllEvents() {
+function loadDashboardStats() {
     $.ajax({
         url: API_URL + "/all",
         method: "GET",
         headers: { "Authorization": "Bearer " + token },
-        success: function(data) {
-            let rows = "";
-            let pendingCount = 0;
-
-            if (data.length === 0) {
-                rows = `<tr><td colspan="5" class="text-center py-4 text-muted">No event requests found.</td></tr>`;
-            } else {
-                data.forEach(ev => {
-                    if(ev.status === "PENDING") pendingCount++;
-
-                    rows += `
-                    <tr>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <div class="bg-light p-2 rounded-circle me-3">
-                                    <i class="fas fa-user text-primary"></i>
-                                </div>
-                                <span class="fw-bold text-dark">ID: ${ev.clientId}</span>
-                            </div>
-                        </td>
-                        <td><span class="text-secondary fw-semibold">${ev.title}</span></td>
-                        <td><i class="far fa-calendar-alt me-2 text-muted"></i>${ev.date}</td>
-                        <td>
-                            <span class="badge ${getStatusBadge(ev.status)} rounded-pill px-3">
-                                ${ev.status}
-                            </span>
-                        </td>
-                        <td class="text-center">
-                            <div class="btn-group shadow-sm rounded">
-                                <button class="btn btn-sm btn-success" title="Approve" onclick="approve(${ev.id})">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" title="Cancel" onclick="cancel(${ev.id})">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>`;
-                });
-            }
-            $('#adminTableBody').hide().html(rows).fadeIn(500);
-
-            // Stats Update කිරීම
-            $('#totalEvents').text(data.length);
-            $('#pendingRequests').text(pendingCount);
-
-            // 📊 Charts වලට Real-time data යැවීම (මෙය අලුතින් එකතු කළා)
-            if (typeof updateAdminCharts === "function") {
-                updateAdminCharts(data);
-            }
-        },
-        error: function(err) {
-            console.error("Error loading events:", err);
-            if(err.status === 403) {
-                alert("Session Expired. Please login again.");
-                window.location.href = 'login.html';
-            }
+        success: function(events) {
+            $('#totalEvents').text(events.length < 10 ? "0" + events.length : events.length);
+            const pending = events.filter(e => e.status === "PENDING").length;
+            $('#pendingRequests').text(pending < 10 ? "0" + pending : pending);
         }
     });
 }
 
-// 3. Status එක අනුව පාට තීරණය කිරීම
-function getStatusBadge(status) {
-    switch (status) {
-        case 'APPROVED': return 'bg-success bg-opacity-75';
-        case 'CANCELLED': return 'bg-danger bg-opacity-75';
-        case 'PENDING': return 'bg-warning text-dark';
-        case 'COMPLETED': return 'bg-primary text-white';
-        default: return 'bg-secondary';
-    }
+function loadAllRequests() {
+    const tableBody = $('#adminTableBody');
+    tableBody.html('<tr><td colspan="5" class="text-center py-4"><div class="spinner-border text-primary"></div></td></tr>');
+
+    // මුලින්ම Vendors ලා අරන් එමු Dropdown එක පුරවන්න
+    $.ajax({
+        url: VENDOR_API + "/all",
+        method: "GET",
+        headers: { "Authorization": "Bearer " + token },
+        success: function(vendors) {
+
+            // දැන් Events අරන් එමු
+            $.ajax({
+                url: API_URL + "/all",
+                method: "GET",
+                headers: { "Authorization": "Bearer " + token },
+                success: function(events) {
+                    let rows = "";
+                    if (events.length === 0) {
+                        rows = `<tr><td colspan="5" class="text-center py-4 text-muted">No requests found.</td></tr>`;
+                    } else {
+                        events.forEach(event => {
+                            let statusClass = (event.status === "APPROVED") ? "bg-success text-success" : "bg-warning text-warning";
+
+                            // Vendor Dropdown එක හදමු (Pending ඒවට විතරක් Vendor කෙනෙක් තෝරන්න දෙමු)
+                            let vendorOptions = `<option value="">Assign Vendor</option>`;
+                            vendors.forEach(v => {
+                                vendorOptions += `<option value="${v.id}">${v.name} (${v.category})</option>`;
+                            });
+
+                            let actionHtml = "";
+                            if (event.status === "PENDING") {
+                                actionHtml = `
+                                    <div class="d-flex flex-column gap-1">
+                                        <select id="vSelect_${event.id}" class="form-select form-select-sm border-primary">
+                                            ${vendorOptions}
+                                        </select>
+                                        <button class="btn btn-sm btn-primary py-1" onclick="approveWithVendor(${event.id})">
+                                            Assign & Approve
+                                        </button>
+                                    </div>`;
+                            } else {
+                                actionHtml = `<span class="text-muted small">Assigned: ${event.vendorName || 'N/A'}</span>`;
+                            }
+
+                            rows += `
+                                <tr>
+                                    <td><div class="fw-bold">${event.clientName || 'Client'}</div><small>#${event.id}</small></td>
+                                    <td><span class="badge bg-primary bg-opacity-10 text-primary">${event.type}</span></td>
+                                    <td>${event.date}</td>
+                                    <td><span class="badge ${statusClass} bg-opacity-10 rounded-pill">${event.status}</span></td>
+                                    <td style="width: 200px;">${actionHtml}</td>
+                                </tr>`;
+                        });
+                    }
+                    tableBody.html(rows);
+                }
+            });
+        }
+    });
 }
 
-// 4. Status Update කිරීමේ function එක
-function updateStatus(id, status) {
-    if(confirm(`Are you sure you want to set this event to ${status}?`)) {
+function approveWithVendor(eventId) {
+    const vendorId = $(`#vSelect_${eventId}`).val();
+    if (!vendorId) {
+        alert("Please select a vendor to assign for this event!");
+        return;
+    }
+
+    if (confirm("Assign this vendor and approve the event?")) {
         $.ajax({
-            url: `${API_URL}/${id}/status?status=${status}`,
+            url: `${API_URL}/${eventId}/assign-vendor?vendorId=${vendorId}&status=APPROVED`,
             method: "PUT",
             headers: { "Authorization": "Bearer " + token },
             success: function() {
-                alert(`Event successfully ${status.toLowerCase()}!`);
-                loadAllEvents();
+                alert("Success! Vendor assigned and Event Approved.");
+                loadAllRequests();
+                loadDashboardStats();
             },
-            error: function() {
-                alert("Error updating status. Please try again.");
-            }
+            error: function(err) { alert("Error: " + err.responseText); }
         });
     }
-}
 
-function approve(id) { updateStatus(id, "APPROVED"); }
-function cancel(id) { updateStatus(id, "CANCELLED"); }
+    function assignToVendor(eventId) {
+        const vendorId = $(`#vSelect_${eventId}`).val();
+        if (!vendorId) {
+            alert("Please select a vendor first!");
+            return;
+        }
 
-// 5. Logout Function
-function logout() {
-    if(confirm("Are you sure you want to logout?")) {
-        localStorage.clear();
-        window.location.href = 'login.html';
+        $.ajax({
+            url: `http://localhost:8080/api/v1/events/${eventId}/assign-vendor?vendorId=${vendorId}&status=REQUESTED`,
+            method: "PUT",
+            headers: { "Authorization": "Bearer " + localStorage.getItem('token') },
+            success: function() {
+                alert("Request sent to Vendor!");
+                loadAllRequests();
+            }
+        });
     }
 }

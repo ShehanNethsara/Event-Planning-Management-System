@@ -31,4 +31,10 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User client;
+
+    private String location; // මේක තියෙනවාද බලන්න
+
+    @ManyToOne
+    @JoinColumn(name = "vendor_id")
+    private Vendor vendor;
 }

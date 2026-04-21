@@ -10,4 +10,5 @@ public interface EventService {
     EventDTO updateEventStatus(Long id, String status);
     void deleteEvent(Long id);
     List<EventDTO> getEventsByClientEmail(String email);
+    EventDTO assignVendorAndStatus(Long id, Long vendorId, String status);
 }
