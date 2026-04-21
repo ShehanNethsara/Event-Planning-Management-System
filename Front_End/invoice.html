@@ -1,40 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
+<head>
     <meta charset="UTF-8">
-    <title>Invoice - EventPro</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .invoice-box { padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); font-size: 16px; line-height: 24px; color: #555; }
-        @media print { .no-print { display: none; } }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice | EventPro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-<div class="container my-5 invoice-box bg-white">
-    <div class="d-flex justify-content-between">
-        <div>
-            <h2 class="fw-bold text-primary">EVENTPRO</h2>
-            <p>Wadduwa, Sri Lanka<br>contact@eventpro.lk</p>
+<body class="bg-light">
+
+<div class="d-flex">
+    <nav class="sidebar bg-dark text-white p-4 vh-100 position-fixed" style="width: 260px;">
+        <div class="mb-5 text-center">
+            <h3 class="fw-bold text-primary">EVENT<span class="text-white">PRO</span></h3>
         </div>
-        <div class="text-end">
-            <h4>INVOICE</h4>
-            <p>Date: <span id="invDate"></span><br>Invoice #: <span id="invNum"></span></p>
+        <ul class="nav flex-column gap-2">
+            <li class="nav-item"><a href="user_dashboard.html" class="nav-link text-white-50"><i class="fas fa-home me-2"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="my_reports.html" class="nav-link text-white active-link bg-primary rounded"><i class="fas fa-file-invoice-dollar me-2"></i> My Invoices</a></li>
+        </ul>
+    </nav>
+
+    <main class="flex-grow-1 p-5" style="margin-left: 260px;">
+        <div class="container">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white">
+                <div class="card-header bg-primary text-white p-4 d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0 fw-bold">INVOICE</h3>
+                    <div class="text-end">
+                        <h5 class="mb-0" id="invoiceId">#INV-0000</h5>
+                        <small class="opacity-75" id="currentDateDisplay"></small>
+                    </div>
+                </div>
+                <div class="card-body p-5">
+                    <div class="row mb-5">
+                        <div class="col-6">
+                            <h6 class="text-muted text-uppercase small fw-bold mb-3">Billed To:</h6>
+                            <h5 class="fw-bold mb-1" id="invClientName">Loading...</h5>
+                            <p class="text-muted mb-0" id="invClientEmail">Loading...</p>
+                        </div>
+                        <div class="col-6 text-end">
+                            <h6 class="text-muted text-uppercase small fw-bold mb-3">Event Summary:</h6>
+                            <h5 class="fw-bold mb-1" id="invEventTitle">Loading...</h5>
+                            <p class="text-muted mb-0">Date: <span id="invEventDate">--/--/--</span></p>
+                        </div>
+                    </div>
+
+                    <table class="table table-borderless">
+                        <thead class="bg-light">
+                        <tr>
+                            <th class="py-3 ps-3">Description</th>
+                            <th class="py-3 text-end pe-3">Total Amount</th>
+                        </tr>
+                        </thead>
+                        <tbody class="border-bottom">
+                        <tr>
+                            <td class="py-4 ps-3">
+                                <h6 class="fw-bold mb-1">Standard Event Management Fee</h6>
+                                <small class="text-muted">Includes planning, vendor coordination, and onsite support.</small>
+                            </td>
+                            <td class="py-4 text-end pe-3 fw-bold fs-5">$1,500.00</td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td class="pt-4 text-end text-muted fw-bold">Grand Total:</td>
+                            <td class="pt-4 text-end text-primary fw-bold fs-3 pe-3">$1,500.00</td>
+                        </tr>
+                        </tfoot>
+                    </table>
+
+                    <div class="mt-5 d-flex justify-content-center gap-3 no-print">
+                        <button class="btn btn-success btn-lg rounded-pill px-5 shadow-sm" onclick="goToPayment()">
+                            <i class="fas fa-credit-card me-2"></i>Proceed to Payment
+                        </button>
+                        <button class="btn btn-outline-secondary btn-lg rounded-pill px-4 shadow-sm" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Download PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    <hr>
-        <table class="table">
-            <thead>
-            <tr><th>Description</th><th class="text-end">Amount</th></tr>
-            </thead>
-            <tbody id="invoiceItems">
-            </tbody>
-        </table>
-        <div class="text-end">
-            <h5>Total: <span id="invTotal" class="fw-bold"></span></h5>
-        </div>
-        <div class="mt-5 no-print">
-            <button onclick="window.print()" class="btn btn-dark">Download PDF / Print</button>
-        </div>
+    </main>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // LocalStorage එකෙන් දත්ත පෙන්වීම
+        $('#invClientEmail').text(localStorage.getItem('userEmail'));
+        $('#invClientName').text(localStorage.getItem('userEmail').split('@')[0].toUpperCase());
+        $('#currentDateDisplay').text(new Date().toLocaleDateString());
+
+        // Dummy Data (Backend එකෙන් එන දත්ත පසුව මෙතනට දාමු)
+        $('#invEventTitle').text("Wedding - Sample Event");
+        $('#invEventDate').text("2026-05-12");
+    });
+
+    function goToPayment() {
+        window.location.href = 'payment.html';
+    }
+</script>
 </body>
 </html>

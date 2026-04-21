@@ -127,12 +127,11 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="js/dashboard.js"></script>
 <script>
-  // Security: Login වී නැතිනම් හරවා යැවීම
   if (!localStorage.getItem('token')) {
     window.location.href = 'login.html';
   }
 
-  // පේජ් එකේ Email එක පෙන්වීම
+
   document.getElementById('userEmailDisplay').innerText = localStorage.getItem('userEmail') || 'User';
 
   function logout() {

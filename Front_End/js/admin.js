@@ -2,7 +2,7 @@ const API_URL = "http://localhost:8080/api/v1/events";
 const token = localStorage.getItem("token");
 const currentRole = localStorage.getItem('userRole');
 
-// Security Check: Admin නෙවෙයි නම් Login එකට හරවා යැවීම
+// 1. Security Check
 if (!currentRole || currentRole !== 'ADMIN') {
     window.location.href = 'login.html';
 }
@@ -17,7 +17,7 @@ $(document).ready(function() {
     }
 });
 
-// සියලුම Events ලබා ගැනීම
+// 2. සියලුම Events ලබා ගැනීම සහ Charts Update කිරීම
 function loadAllEvents() {
     $.ajax({
         url: API_URL + "/all",
@@ -63,30 +63,39 @@ function loadAllEvents() {
                     </tr>`;
                 });
             }
-            $('#adminTableBody').hide().html(rows).fadeIn(500); // පොඩි Animation එකක් එක්ක Load කිරීම
+            $('#adminTableBody').hide().html(rows).fadeIn(500);
 
             // Stats Update කිරීම
             $('#totalEvents').text(data.length);
             $('#pendingRequests').text(pendingCount);
+
+            // 📊 Charts වලට Real-time data යැවීම (මෙය අලුතින් එකතු කළා)
+            if (typeof updateAdminCharts === "function") {
+                updateAdminCharts(data);
+            }
         },
         error: function(err) {
             console.error("Error loading events:", err);
-            if(err.status === 403) alert("Session Expired. Please login again.");
+            if(err.status === 403) {
+                alert("Session Expired. Please login again.");
+                window.location.href = 'login.html';
+            }
         }
     });
 }
 
-// Status එක අනුව පාට තීරණය කිරීම
+// 3. Status එක අනුව පාට තීරණය කිරීම
 function getStatusBadge(status) {
     switch (status) {
         case 'APPROVED': return 'bg-success bg-opacity-75';
         case 'CANCELLED': return 'bg-danger bg-opacity-75';
         case 'PENDING': return 'bg-warning text-dark';
+        case 'COMPLETED': return 'bg-primary text-white';
         default: return 'bg-secondary';
     }
 }
 
-// Status Update කිරීමේ ප්‍රධාන function එක
+// 4. Status Update කිරීමේ function එක
 function updateStatus(id, status) {
     if(confirm(`Are you sure you want to set this event to ${status}?`)) {
         $.ajax({
@@ -106,3 +115,11 @@ function updateStatus(id, status) {
 
 function approve(id) { updateStatus(id, "APPROVED"); }
 function cancel(id) { updateStatus(id, "CANCELLED"); }
+
+// 5. Logout Function
+function logout() {
+    if(confirm("Are you sure you want to logout?")) {
+        localStorage.clear();
+        window.location.href = 'login.html';
+    }
+}
