@@ -1,4 +1,3 @@
-// Auth Header eka hadana hati
 function getAuthHeader() {
     const token = localStorage.getItem('token');
     return {
@@ -7,14 +6,19 @@ function getAuthHeader() {
     };
 }
 
-// Login wela nathnam login page ekata yawanna
 function checkAuth() {
     if (!localStorage.getItem('token')) {
         window.location.href = 'login.html';
     }
 }
 
+// function logout() {
+//     localStorage.clear();
+//     window.location.href = 'login.html';
+// }
 function logout() {
-    localStorage.clear();
-    window.location.href = 'login.html';
+    if(confirm("Are you sure you want to logout?")) {
+        localStorage.clear(); // Token සහ Role මකනවා
+        window.location.href = 'login.html';
+    }
 }

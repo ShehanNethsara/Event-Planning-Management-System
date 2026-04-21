@@ -1,7 +1,6 @@
 document.getElementById('regForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // HTML IDs වලට අනුව values ලබා ගැනීම
     const name = document.getElementById('regName').value;
     const email = document.getElementById('regEmail').value;
     const password = document.getElementById('regPassword').value;
