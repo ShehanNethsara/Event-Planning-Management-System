@@ -8,17 +8,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        /* PDF එකක් විදියට Print කරද්දී Sidebar සහ Buttons ඉවත් කිරීමට */
+        @media print {
+            .sidebar, .no-print, .btn {
+                display: none !important;
+            }
+            main {
+                margin-left: 0 !important;
+                padding: 0 !important;
+            }
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+            }
+            body {
+                background-color: white !important;
+            }
+        }
+    </style>
 </head>
 <body class="bg-light">
 
 <div class="d-flex">
-    <nav class="sidebar bg-dark text-white p-4 vh-100 position-fixed" style="width: 260px;">
+    <nav class="sidebar bg-dark text-white p-4 vh-100 position-fixed no-print" style="width: 260px;">
         <div class="mb-5 text-center">
             <h3 class="fw-bold text-primary">EVENT<span class="text-white">PRO</span></h3>
         </div>
         <ul class="nav flex-column gap-2">
             <li class="nav-item"><a href="user_dashboard.html" class="nav-link text-white-50"><i class="fas fa-home me-2"></i> Dashboard</a></li>
-            <li class="nav-item"><a href="my_reports.html" class="nav-link text-white active-link bg-primary rounded"><i class="fas fa-file-invoice-dollar me-2"></i> My Invoices</a></li>
+            <li class="nav-item"><a href="my_reports.html" class="nav-link text-white active-link bg-primary rounded shadow-sm"><i class="fas fa-file-invoice-dollar me-2"></i> My Invoices</a></li>
+            <li class="nav-item mt-5">
+                <button onclick="window.location.href='user_dashboard.html'" class="btn btn-outline-light btn-sm w-100">Back to Dashboard</button>
+            </li>
         </ul>
     </nav>
 
@@ -26,58 +49,70 @@
         <div class="container">
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white">
                 <div class="card-header bg-primary text-white p-4 d-flex justify-content-between align-items-center">
-                    <h3 class="mb-0 fw-bold">INVOICE</h3>
+                    <div>
+                        <h3 class="mb-0 fw-bold">INVOICE</h3>
+                        <small class="opacity-75">Event Planning Management System</small>
+                    </div>
                     <div class="text-end">
-                        <h5 class="mb-0" id="invoiceId">#INV-0000</h5>
+                        <h5 class="mb-0" id="invoiceId">#INV-LOAD</h5>
                         <small class="opacity-75" id="currentDateDisplay"></small>
                     </div>
                 </div>
+
                 <div class="card-body p-5">
                     <div class="row mb-5">
                         <div class="col-6">
                             <h6 class="text-muted text-uppercase small fw-bold mb-3">Billed To:</h6>
-                            <h5 class="fw-bold mb-1" id="invClientName">Loading...</h5>
-                            <p class="text-muted mb-0" id="invClientEmail">Loading...</p>
+                            <h5 class="fw-bold mb-1" id="invClientName">Loading User...</h5>
+                            <p class="text-muted mb-0" id="invClientEmail">Loading Email...</p>
                         </div>
                         <div class="col-6 text-end">
                             <h6 class="text-muted text-uppercase small fw-bold mb-3">Event Summary:</h6>
-                            <h5 class="fw-bold mb-1" id="invEventTitle">Loading...</h5>
+                            <h5 class="fw-bold mb-1 text-primary" id="invEventTitle">Loading Event...</h5>
                             <p class="text-muted mb-0">Date: <span id="invEventDate">--/--/--</span></p>
+                            <p class="text-muted mb-0">ID: <span id="invEventId">#00</span></p>
                         </div>
                     </div>
 
-                    <table class="table table-borderless">
-                        <thead class="bg-light">
-                        <tr>
-                            <th class="py-3 ps-3">Description</th>
-                            <th class="py-3 text-end pe-3">Total Amount</th>
-                        </tr>
-                        </thead>
-                        <tbody class="border-bottom">
-                        <tr>
-                            <td class="py-4 ps-3">
-                                <h6 class="fw-bold mb-1">Standard Event Management Fee</h6>
-                                <small class="text-muted">Includes planning, vendor coordination, and onsite support.</small>
-                            </td>
-                            <td class="py-4 text-end pe-3 fw-bold fs-5">$1,500.00</td>
-                        </tr>
-                        </tbody>
-                        <tfoot>
-                        <tr>
-                            <td class="pt-4 text-end text-muted fw-bold">Grand Total:</td>
-                            <td class="pt-4 text-end text-primary fw-bold fs-3 pe-3">$1,500.00</td>
-                        </tr>
-                        </tfoot>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <thead class="bg-light">
+                            <tr>
+                                <th class="py-3 ps-3">Service Description</th>
+                                <th class="py-3 text-end pe-3">Amount</th>
+                            </tr>
+                            </thead>
+                            <tbody class="border-bottom">
+                            <tr>
+                                <td class="py-4 ps-3">
+                                    <h6 class="fw-bold mb-1" id="itemTitle">Standard Event Fee</h6>
+                                    <small class="text-muted">Includes resource allocation, vendor coordination, and coordination support.</small>
+                                </td>
+                                <td class="py-4 text-end pe-3 fw-bold fs-5 text-dark">$1,500.00</td>
+                            </tr>
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <td class="pt-4 text-end text-muted fw-bold border-0">Grand Total:</td>
+                                <td class="pt-4 text-end text-primary fw-bold fs-3 pe-3 border-0">$1,500.00</td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
 
                     <div class="mt-5 d-flex justify-content-center gap-3 no-print">
                         <button class="btn btn-success btn-lg rounded-pill px-5 shadow-sm" onclick="goToPayment()">
                             <i class="fas fa-credit-card me-2"></i>Proceed to Payment
                         </button>
                         <button class="btn btn-outline-secondary btn-lg rounded-pill px-4 shadow-sm" onclick="window.print()">
-                            <i class="fas fa-print me-2"></i>Download PDF
+                            <i class="fas fa-print me-2"></i>Download / Print PDF
                         </button>
                     </div>
+                </div>
+
+                <div class="card-footer bg-light p-4 text-center text-muted small border-0">
+                    Thank you for choosing EventPro for your special occasion. <br>
+                    <strong>Note:</strong> This is a computer-generated invoice.
                 </div>
             </div>
         </div>
@@ -87,19 +122,93 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
-        // LocalStorage එකෙන් දත්ත පෙන්වීම
-        $('#invClientEmail').text(localStorage.getItem('userEmail'));
-        $('#invClientName').text(localStorage.getItem('userEmail').split('@')[0].toUpperCase());
-        $('#currentDateDisplay').text(new Date().toLocaleDateString());
+        const token = localStorage.getItem('token');
+        const userEmail = localStorage.getItem('userEmail');
 
-        // Dummy Data (Backend එකෙන් එන දත්ත පසුව මෙතනට දාමු)
-        $('#invEventTitle').text("Wedding - Sample Event");
-        $('#invEventDate').text("2026-05-12");
+        // URL එකෙන් Event ID එක ලබා ගැනීම (e.g. invoice.html?id=12)
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('id');
+
+        if (!eventId) {
+            alert("No Event ID found. Redirecting to Dashboard.");
+            window.location.href = 'user_dashboard.html';
+            return;
+        }
+
+        // පේජ් එකේ මූලික තොරතුරු
+        $('#invClientEmail').text(userEmail);
+        $('#invClientName').text(userEmail ? userEmail.split('@')[0].toUpperCase() : 'USER');
+        $('#currentDateDisplay').text(new Date().toLocaleDateString('en-GB'));
+        $('#invoiceId').text('#INV-' + Math.floor(1000 + Math.random() * 9000));
+
+        // Backend එකෙන් අදාළ Event එකේ දත්ත Fetch කිරීම
+        fetch(`http://localhost:8080/api/v1/events/all`, { // ඇත්තටම /get-by-id එකක් ඇත්නම් එය පාවිච්චි කරන්න
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+            .then(res => res.json())
+            .then(data => {
+                // අපිට අවශ්‍ය ID එකට ගැලපෙන Event එක තෝරා ගැනීම
+                const event = data.find(e => e.id == eventId);
+
+                if (event) {
+                    $('#invEventTitle').text(event.title);
+                    $('#itemTitle').text(event.title + " - Management Fee");
+                    $('#invEventDate').text(event.date);
+                    $('#invEventId').text('#EV-' + event.id);
+                } else {
+                    $('#invEventTitle').text("Sample Event (Demo Mode)");
+                }
+            })
+            .catch(err => {
+                console.error("Error loading event data:", err);
+                // Error එකක් ආවොත් පෙන්වන සාමාන්‍ය දත්ත
+                $('#invEventTitle').text("Event Record #" + eventId);
+            });
     });
 
     function goToPayment() {
         window.location.href = 'payment.html';
     }
+    $(document).ready(function() {
+        const token = localStorage.getItem('token');
+        const userEmail = localStorage.getItem('userEmail');
+
+        // 1. URL එකේ තියෙන ID එක ලබා ගැනීම
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('id');
+
+        if (!eventId) {
+            alert("Invalid Access! Redirecting to Dashboard.");
+            window.location.href = 'user_dashboard.html';
+            return;
+        }
+
+        // 2. Client ගේ මූලික තොරතුරු පෙන්වීම
+        $('#invClientEmail').text(userEmail);
+        $('#invClientName').text(userEmail ? userEmail.split('@')[0].toUpperCase() : 'USER');
+        $('#currentDateDisplay').text(new Date().toLocaleDateString('en-GB'));
+
+        // 3. Backend එකෙන් ඒ අදාළ Event එකේ විස්තර Fetch කිරීම
+        $.ajax({
+            url: `http://localhost:8080/api/v1/events/my-events?email=${userEmail}`,
+            method: "GET",
+            headers: { "Authorization": "Bearer " + token },
+            success: function(data) {
+                // අපිට අවශ්‍ය ID එක තියෙන Event එක තෝරාගමු
+                const event = data.find(e => e.id == eventId);
+
+                if (event) {
+                    $('#invoiceId').text('#INV-2026-' + event.id);
+                    $('#invEventTitle').text(event.title);
+                    $('#itemTitle').text(event.title + " - Standard Management Fee");
+                    $('#invEventDate').text(event.date);
+                } else {
+                    alert("Event not found!");
+                    window.location.href = 'user_dashboard.html';
+                }
+            }
+        });
+    });
 </script>
 </body>
 </html>

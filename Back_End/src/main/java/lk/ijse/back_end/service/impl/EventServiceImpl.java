@@ -60,4 +60,15 @@ public class EventServiceImpl implements EventService {
     public void deleteEvent(Long id) {
         eventRepository.deleteById(id);
     }
+    @Override
+    public List<EventDTO> getEventsByClientEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        List<Event> events = eventRepository.findByClient(user);
+
+        return events.stream()
+                .map(event -> modelMapper.map(event, EventDTO.class))
+                .collect(Collectors.toList());
+    }
 }

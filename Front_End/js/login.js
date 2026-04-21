@@ -9,14 +9,13 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
         return;
     }
 
-    const email = emailField.value;
+    const email = emailField.value.trim(); // හිස් ඉඩ (spaces) අයින් කිරීම
     const password = passwordField.value;
 
-    // Button එක disable කරමු double clicks වළක්වන්න
     const loginBtn = e.target.querySelector('button');
     if(loginBtn) {
         loginBtn.disabled = true;
-        loginBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
+        loginBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Verifying...';
     }
 
     fetch('http://localhost:8080/api/v1/auth/login', {
@@ -29,48 +28,48 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     })
         .then(response => {
             if (!response.ok) {
+                // Backend එකෙන් එන Error එක බලමු
                 return response.json().then(err => {
-                    throw new Error(err.message || 'Invalid Credentials');
+                    throw new Error(err.message || 'Invalid Email or Password');
                 }).catch(() => {
-                    throw new Error('Server error (500). Please check Backend Console.');
+                    throw new Error('Connection failed or Server Error (500)');
                 });
             }
             return response.json();
         })
         .then(data => {
             // 1. Data localStorage එකේ Save කිරීම
+            // Backend එකෙන් එන දත්ත වල හැටි අනුව data.token හෝ data.data.token විය හැක.
+            // ඔයාගේ Backend එකේ response එක බලන්න.
             localStorage.setItem('token', data.token);
-            localStorage.setItem('userRole', data.role.toUpperCase());
+
+            // Role එක හැමවිටම කැපිටල් කරලා සේව් කරමු (ADMIN, USER, etc.)
+            const userRole = data.role ? data.role.toUpperCase() : "USER";
+            localStorage.setItem('userRole', userRole);
             localStorage.setItem('userEmail', email);
 
-            // 2. Welcome Message එකක් පෙන්වීම
-            const userName = email.split('@')[0].toUpperCase();
-            alert(`Welcome Back, ${userName}!`);
+            console.log("Success! Role Received:", userRole);
 
-            const role = data.role.toUpperCase();
-            console.log("Login Success. Redirecting for Role:", role);
-
-            // 3. Role-Based Redirection
-            setTimeout(() => {
-                if (role === 'ADMIN') {
-                    window.location.href = 'adminDashboard.html';
-                }
-                else if (role === 'VENDOR' || role === 'STAFF') {
-                    window.location.href = 'dashboard.html';
-                }
-                else if (role === 'CLIENT' || role === 'USER') {
-                    window.location.href = 'user_dashboard.html';
-                }
-                else {
-                    window.location.href = 'index.html';
-                }
-            }, 500); // පොඩි delay එකක් දාමු smooth වෙන්න
+            // 2. Role-Based Redirection
+            // ෆයිල් එකේ නම 'adminDashboard.html' ද නැත්නම් 'admindashboard.html' ද බලන්න.
+            // පද්ධතියේ තියෙන නමම මෙතනට දෙන්න.
+            if (userRole === 'ADMIN') {
+                window.location.href = 'adminDashboard.html';
+            }
+            else if (userRole === 'VENDOR' || userRole === 'STAFF') {
+                window.location.href = 'dashboard.html';
+            }
+            else if (userRole === 'CLIENT' || userRole === 'USER') {
+                window.location.href = 'user_dashboard.html';
+            }
+            else {
+                window.location.href = 'index.html';
+            }
         })
         .catch(error => {
-            console.error('Login Error:', error);
+            console.error('Login Error Detailed:', error);
             alert('Login Failed: ' + error.message);
 
-            // Error එකකදී ආපහු button එක enable කිරීම
             if(loginBtn) {
                 loginBtn.disabled = false;
                 loginBtn.innerHTML = 'Login';
