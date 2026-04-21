@@ -10,4 +10,5 @@ import java.util.List;
 public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByClientId(Long clientId);
     List<Event> findByClient(User client);
+
 }

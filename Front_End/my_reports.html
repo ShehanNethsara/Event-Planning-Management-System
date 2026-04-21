@@ -7,6 +7,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .sidebar { min-height: 100vh; z-index: 1000; }
+        .active-link { background: #0d6efd !important; color: white !important; }
+        .card { border-radius: 15px; }
+        .badge { font-weight: 500; }
+    </style>
 </head>
 <body class="bg-light">
 
@@ -22,7 +29,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="my_reports.html" class="nav-link text-white active-link bg-primary rounded shadow-sm">
+                <a href="my_reports.html" class="nav-link text-white active-link rounded shadow-sm">
                     <i class="fas fa-file-invoice-dollar me-2"></i> My Invoices
                 </a>
             </li>
@@ -38,13 +45,13 @@
         <div class="d-flex justify-content-between align-items-center mb-5">
             <div>
                 <h2 class="fw-bold text-dark">Financial Reports</h2>
-                <p class="text-muted">View and download your approved event invoices.</p>
+                <p class="text-muted">View and download your event invoices and track payments.</p>
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card border-0 shadow-sm overflow-hidden">
             <div class="card-header bg-white p-4 border-0">
-                <h5 class="fw-bold mb-0">Approved Invoices</h5>
+                <h5 class="fw-bold mb-0">Invoice History</h5>
             </div>
             <div class="table-responsive px-4 pb-4">
                 <table class="table align-middle table-hover">
@@ -52,14 +59,19 @@
                     <tr>
                         <th>Invoice ID</th>
                         <th>Event Title</th>
-                        <th>Event Date</th>
+                        <th>Issued Date</th>
                         <th>Amount</th>
                         <th>Status</th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
                     <tbody id="invoiceTableBody">
-                    <tr><td colspan="6" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="spinner-border text-primary"></div>
+                            <p class="mt-2">Loading your invoices...</p>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -69,8 +81,11 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    // --- මෙතන ඉඳන් තමයි JS එක පටන් ගන්නේ ---
     $(document).ready(function() {
+        console.log("Page Loaded. Checking LocalStorage...");
+        console.log("Token:", localStorage.getItem('token'));
+        console.log("Email:", localStorage.getItem('userEmail'));
+
         loadMyInvoices();
     });
 
@@ -78,49 +93,75 @@
         const token = localStorage.getItem('token');
         const email = localStorage.getItem('userEmail');
 
-        if (!token) {
+        if (!token || !email) {
+            console.error("Missing token or email! Redirecting to login...");
             window.location.href = 'login.html';
             return;
         }
 
         $.ajax({
-            url: `http://localhost:8080/api/v1/events/my-events?email=${email}`,
+            url: `http://localhost:8080/api/v1/invoices/my-invoices?email=${email}`,
             method: "GET",
             headers: { "Authorization": "Bearer " + token },
-            success: function(data) {
-                let rows = "";
-                // APPROVED හෝ COMPLETED ඒවා විතරක් පෙන්නමු
-                const approvedEvents = data.filter(ev => ev.status === "APPROVED" || ev.status === "COMPLETED");
+            success: function(invoices) {
+                console.log("Data successfully fetched from Backend:", invoices);
 
-                if (approvedEvents.length === 0) {
-                    rows = `<tr><td colspan="6" class="text-center py-4 text-muted">No approved invoices found yet.</td></tr>`;
+                let rows = "";
+
+                if (!invoices || invoices.length === 0) {
+                    console.warn("Backend returned an empty list for email:", email);
+                    rows = `<tr><td colspan="6" class="text-center py-5 text-muted">No invoices found for your account.</td></tr>`;
                 } else {
-                    approvedEvents.forEach(ev => {
+                    invoices.forEach(inv => {
+                        // Backend එකෙන් එන field names හරියටම check කරමු
+                        const id = inv.id;
+                        const title = inv.eventTitle || 'No Title';
+                        const date = inv.issuedDate || 'No Date';
+                        const amount = inv.amount || 0;
+                        const status = inv.status || 'UNKNOWN';
+
+                        const statusBadge = status === 'PAID'
+                            ? 'bg-success text-success'
+                            : 'bg-warning text-warning';
+
                         rows += `
                             <tr>
-                                <td class="fw-bold text-primary">#INV-2026-${ev.id}</td>
-                                <td><div class="fw-bold text-dark">${ev.title}</div></td>
-                                <td><i class="far fa-calendar-alt me-2 text-muted"></i>${ev.date}</td>
-                                <td class="fw-bold text-dark">$1,500.00</td>
-                                <td><span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">${ev.status}</span></td>
+                                <td class="fw-bold text-primary">#INV-${id}</td>
+                                <td><div class="fw-bold text-dark">${title}</div></td>
+                                <td><i class="far fa-calendar-alt me-2 text-muted"></i>${date}</td>
+                                <td class="fw-bold text-dark">LKR ${amount.toLocaleString()}</td>
+                                <td><span class="badge ${statusBadge} bg-opacity-10 rounded-pill px-3">${status}</span></td>
                                 <td class="text-center">
-                                    <a href="invoice.html?id=${ev.id}" class="btn btn-sm btn-primary rounded-pill px-3">
-                                        <i class="fas fa-file-pdf me-1"></i> View PDF
-                                    </a>
+                                    <div class="btn-group">
+                                        <a href="invoice_view.html?id=${id}" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
+                                            <i class="fas fa-eye me-1"></i> View
+                                        </a>
+                                        ${status === 'UNPAID' ? `
+                                            <button onclick="payNow(${id}, ${amount})" class="btn btn-sm btn-success rounded-pill px-3">
+                                                <i class="fas fa-credit-card me-1"></i> Pay
+                                            </button>` : ''}
+                                    </div>
                                 </td>
                             </tr>`;
                     });
                 }
                 $('#invoiceTableBody').hide().html(rows).fadeIn(400);
             },
-            error: function() {
-                $('#invoiceTableBody').html('<tr><td colspan="6" class="text-center text-danger">Failed to load reports.</td></tr>');
+            error: function(err) {
+                console.error("AJAX Error:", err);
+                $('#invoiceTableBody').html('<tr><td colspan="6" class="text-center text-danger py-4">Error connecting to server. Check Console (F12).</td></tr>');
             }
         });
     }
 
+    function payNow(invoiceId, amount) {
+        localStorage.setItem('payingInvoiceId', invoiceId);
+        localStorage.setItem('payingAmount', amount);
+        window.location.href = 'payment.html';
+    }
+
     function logout() {
-        if(confirm("Logout from EventPro?")) {
+        if(confirm("Are you sure?")) {
             localStorage.clear();
             window.location.href = 'login.html';
         }

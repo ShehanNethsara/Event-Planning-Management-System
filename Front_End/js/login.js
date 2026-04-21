@@ -9,7 +9,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
         return;
     }
 
-    const email = emailField.value.trim(); // හිස් ඉඩ (spaces) අයින් කිරීම
+    const email = emailField.value.trim();
     const password = passwordField.value;
 
     const loginBtn = e.target.querySelector('button');
@@ -28,7 +28,6 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     })
         .then(response => {
             if (!response.ok) {
-                // Backend එකෙන් එන Error එක බලමු
                 return response.json().then(err => {
                     throw new Error(err.message || 'Invalid Email or Password');
                 }).catch(() => {
@@ -38,28 +37,25 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             return response.json();
         })
         .then(data => {
-            // 1. Data localStorage එකේ Save කිරීම
-            // Backend එකෙන් එන දත්ත වල හැටි අනුව data.token හෝ data.data.token විය හැක.
-            // ඔයාගේ Backend එකේ response එක බලන්න.
+            // 1. Token එක save කිරීම
             localStorage.setItem('token', data.token);
 
-            // Role එක හැමවිටම කැපිටල් කරලා සේව් කරමු (ADMIN, USER, etc.)
+            // 2. Role එක නිවැරදිව Format කරගැනීම
+            // Spring Security එවන්නේ "ROLE_ADMIN" නම් අපිට ඒක "ADMIN" විදිහට ගන්න මෙන්න මේ includes ලොජික් එක ඕනේ
             const userRole = data.role ? data.role.toUpperCase() : "USER";
             localStorage.setItem('userRole', userRole);
             localStorage.setItem('userEmail', email);
 
-            console.log("Success! Role Received:", userRole);
+            console.log("Login Success! Role:", userRole);
 
-            // 2. Role-Based Redirection
-            // ෆයිල් එකේ නම 'adminDashboard.html' ද නැත්නම් 'admindashboard.html' ද බලන්න.
-            // පද්ධතියේ තියෙන නමම මෙතනට දෙන්න.
-            if (userRole === 'ADMIN') {
+            // 3. Role එක අනුව Redirect කිරීම
+            if (userRole.includes('ADMIN')) {
                 window.location.href = 'adminDashboard.html';
             }
-            else if (userRole === 'VENDOR' || userRole === 'STAFF') {
+            else if (userRole.includes('VENDOR') || userRole.includes('STAFF')) {
                 window.location.href = 'dashboard.html';
             }
-            else if (userRole === 'CLIENT' || userRole === 'USER') {
+            else if (userRole.includes('CLIENT') || userRole.includes('USER')) {
                 window.location.href = 'user_dashboard.html';
             }
             else {
@@ -67,7 +63,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             }
         })
         .catch(error => {
-            console.error('Login Error Detailed:', error);
+            console.error('Detailed Error:', error);
             alert('Login Failed: ' + error.message);
 
             if(loginBtn) {

@@ -28,7 +28,6 @@ document.getElementById('regForm').addEventListener('submit', function(e) {
                 alert('Registration Successful! Please Login.');
                 window.location.href = 'login.html';
             } else {
-                // Backend එකෙන් එන Error message එක පෙන්වීම
                 return response.json().then(data => {
                     alert('Registration Failed: ' + (data.message || 'Details mismatch'));
                 });

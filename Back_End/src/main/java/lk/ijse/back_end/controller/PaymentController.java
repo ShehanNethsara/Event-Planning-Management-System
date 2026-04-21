@@ -27,7 +27,6 @@ public class PaymentController {
 
     @GetMapping("/invoice/{eventId}")
     public ResponseEntity<?> getInvoiceData(@PathVariable Long eventId) {
-        // Invoice generate karanna awashya event details yawanna
         return ResponseEntity.ok(paymentService.getInvoiceByEventId(eventId));
     }
 }
