@@ -3,17 +3,14 @@ package lk.ijse.back_end.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventDTO {
+public class VendorDTO {
     private Long id;
-    private String title;
-    private String description;
+    private String name;
     private String type;
-    private LocalDate date;
-    private String status;
-    private Long clientId;
+    private String description;
+    private Double priceRange;
 }

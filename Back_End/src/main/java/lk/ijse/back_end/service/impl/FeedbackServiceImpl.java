@@ -3,6 +3,7 @@ package lk.ijse.back_end.service.impl;
 import jakarta.transaction.Transactional;
 import lk.ijse.back_end.dto.FeedbackDTO;
 import lk.ijse.back_end.entity.Feedback;
+import lk.ijse.back_end.repository.FeedbackRepository;
 import lk.ijse.back_end.service.FeedbackService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

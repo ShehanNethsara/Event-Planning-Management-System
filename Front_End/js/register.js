@@ -1,10 +1,11 @@
-document.getElementById('registerForm').addEventListener('submit', function(e) {
+document.getElementById('regForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const role = document.getElementById('role').value;
+    // HTML IDs වලට අනුව values ලබා ගැනීම (regName, regEmail, etc.)
+    const name = document.getElementById('regName').value;
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const role = document.getElementById('regRole').value;
 
     const userData = {
         name: name,
@@ -12,6 +13,8 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
         password: password,
         role: role
     };
+
+    console.log("Registering User Data:", userData);
 
     fetch('http://localhost:8080/api/v1/auth/register', {
         method: 'POST',
@@ -22,14 +25,17 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
     })
         .then(response => {
             if (response.ok) {
-                alert('Registration Successful!');
+                alert('Registration Successful! Please Login.');
                 window.location.href = 'login.html';
             } else {
-                alert('Registration Failed. Try again.');
+                // Backend එකෙන් එන Error message එක පෙන්වීම
+                return response.json().then(data => {
+                    alert('Registration Failed: ' + (data.message || 'Details mismatch'));
+                });
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Server connection error.');
+            alert('Server connection error. Check if Backend is running.');
         });
 });

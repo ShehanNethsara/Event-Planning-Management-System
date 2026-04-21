@@ -1,11 +1,10 @@
 package lk.ijse.back_end.service.impl;
 
-
-
 import lk.ijse.back_end.dto.EventDTO;
 import lk.ijse.back_end.entity.Event;
-import lk.ijse.back_end.exception.ResourceNotFoundException;
+import lk.ijse.back_end.entity.User;
 import lk.ijse.back_end.repository.EventRepository;
+import lk.ijse.back_end.repository.UserRepository;
 import lk.ijse.back_end.service.EventService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,46 +18,46 @@ import java.util.stream.Collectors;
 @Transactional
 public class EventServiceImpl implements EventService {
 
-    @Autowired
-    private EventRepository eventRepository;
-
-    @Autowired
-    private ModelMapper modelMapper;
+    @Autowired private EventRepository eventRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private ModelMapper modelMapper;
 
     @Override
-    public EventDTO saveEvent(EventDTO eventDTO) {
-        Event event = modelMapper.map(eventDTO, Event.class);
-        event.setStatus("PENDING");
+    public EventDTO createEvent(EventDTO dto) {
+        Event event = modelMapper.map(dto, Event.class);
+
+        // Client ID eka haraha real User object eka hoyagena link karanawa
+        User client = userRepository.findById(dto.getClientId())
+                .orElseThrow(() -> new RuntimeException("Client not found"));
+
+        event.setClient(client);
+        event.setStatus("PENDING"); // Default status
+
         return modelMapper.map(eventRepository.save(event), EventDTO.class);
     }
 
     @Override
     public List<EventDTO> getAllEvents() {
         return eventRepository.findAll().stream()
-                .map(event -> modelMapper.map(event, EventDTO.class))
-                .collect(Collectors.toList());
+                .map(e -> modelMapper.map(e, EventDTO.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EventDTO> getEventsByClient(Long clientId) {
+        return eventRepository.findByClientId(clientId).stream()
+                .map(e -> modelMapper.map(e, EventDTO.class)).collect(Collectors.toList());
     }
 
     @Override
     public EventDTO updateEventStatus(Long id, String status) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Event not found"));
         event.setStatus(status);
         return modelMapper.map(eventRepository.save(event), EventDTO.class);
     }
 
     @Override
     public void deleteEvent(Long id) {
-        if (!eventRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Event not found with id: " + id);
-        }
         eventRepository.deleteById(id);
-    }
-
-    @Override
-    public List<EventDTO> getEventsByUserId(Long userId) {
-        return eventRepository.findByClientId(userId).stream()
-                .map(event -> modelMapper.map(event, EventDTO.class))
-                .collect(Collectors.toList());
     }
 }

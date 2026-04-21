@@ -1,17 +1,20 @@
-const BASE_URL = "http://localhost:8080/api/v1";
-
-const apiRequest = async (url, method, data = null) => {
-    const token = localStorage.getItem("token");
-    const options = {
-        method: method,
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": token ? `Bearer ${token}` : ""
-        }
+// Auth Header eka hadana hati
+function getAuthHeader() {
+    const token = localStorage.getItem('token');
+    return {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
     };
-    if (data) options.body = JSON.stringify(data);
+}
 
-    const response = await fetch(BASE_URL + url, options);
-    if (!response.ok) throw new Error(await response.text());
-    return response.json();
-};
+// Login wela nathnam login page ekata yawanna
+function checkAuth() {
+    if (!localStorage.getItem('token')) {
+        window.location.href = 'login.html';
+    }
+}
+
+function logout() {
+    localStorage.clear();
+    window.location.href = 'login.html';
+}

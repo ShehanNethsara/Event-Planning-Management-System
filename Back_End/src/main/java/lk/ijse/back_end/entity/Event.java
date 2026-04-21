@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDate;
 
 @Entity
 @Data
@@ -14,13 +15,20 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String title;
-    private String description;
-    private String date;
-    private String type; // Wedding, Concert, etc.
-    private String status; // PENDING, APPROVED, COMPLETED
 
+    private String description;
+
+    private String type; // Wedding, Corporate, Concert etc.
+
+    private LocalDate date;
+
+    @Column(columnDefinition = "VARCHAR(20) DEFAULT 'PENDING'")
+    private String status; // PENDING, APPROVED, CANCELLED
+
+    // Event එක අයිති client ව මෙතනින් link කරනවා
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User client; // Event eka book karapu user
+    @JoinColumn(name = "user_id", nullable = false)
+    private User client;
 }

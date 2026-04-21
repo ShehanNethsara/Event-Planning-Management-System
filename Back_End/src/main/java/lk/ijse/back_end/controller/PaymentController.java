@@ -1,5 +1,7 @@
 package lk.ijse.back_end.controller;
 
+import lk.ijse.back_end.dto.PaymentDTO;
+import lk.ijse.back_end.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
