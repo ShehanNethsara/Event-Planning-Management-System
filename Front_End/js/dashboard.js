@@ -1,24 +1,24 @@
-// Backend API URL - Ensure this matches your Spring Boot server port
 const API_BASE_URL = 'http://localhost:8080/api/v1/events';
+const currentRole = localStorage.getItem('userRole');
+
+if (!currentRole) {
+    window.location.href = 'login.html';
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('token');
-    const userRole = localStorage.getItem('userRole'); // Expected values: 'ADMIN', 'CLIENT', or 'STAFF'
-
-    // 1. Session Check
+    const userRole = localStorage.getItem('userRole');
     if (!token) {
         alert("Session expired. Please login again.");
         window.location.href = 'login.html';
         return;
     }
 
-    // Display User Role in Navbar
     document.getElementById('userDisplayName').innerText = `Welcome, ${userRole || 'User'}`;
 
-    // 2. Initial Data Load
+
     loadEvents();
 
-    // 3. Handle Event Booking Submission (For Clients)
     const eventForm = document.getElementById('eventForm');
     if (eventForm) {
         eventForm.addEventListener('submit', function(e) {
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 type: document.getElementById('eventType').value,
                 date: document.getElementById('eventDate').value,
                 description: document.getElementById('eventDescription').value,
-                clientId: 1 // In production, this should be extracted from the token/session
+                clientId: 1
             };
 
             fetch(`${API_BASE_URL}/book`, {
@@ -44,13 +44,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (response.ok) {
                         alert("Event Booked Successfully!");
 
-                        // Hide the Bootstrap Modal
+
                         const modalElement = document.getElementById('addEventModal');
                         const modal = bootstrap.Modal.getInstance(modalElement);
                         if (modal) modal.hide();
 
                         eventForm.reset();
-                        loadEvents(); // Refresh table data
+                        loadEvents();
                     } else {
                         alert("Failed to book event. Please check your connection or permissions.");
                     }
@@ -63,10 +63,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-/**
- * Function to Fetch and Load Events into the Table
- * Dynamically adds 'Approve' button if user is an ADMIN
- */
 function loadEvents() {
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('userRole');
@@ -83,14 +79,13 @@ function loadEvents() {
         })
         .then(data => {
             const tableBody = document.getElementById('eventTableBody');
-            tableBody.innerHTML = ''; // Clear existing table rows
+            tableBody.innerHTML = '';
 
             let pendingCount = 0;
 
             data.forEach(event => {
                 if (event.status === 'PENDING') pendingCount++;
 
-                // Logic to show 'Approve' button only for ADMINs on PENDING events
                 let actionButtons = '';
                 if (userRole === 'ADMIN' && event.status === 'PENDING') {
                     actionButtons = `
@@ -99,7 +94,6 @@ function loadEvents() {
                     </button>`;
                 }
 
-                // Always show delete/cancel button
                 actionButtons += `
                 <button class="btn btn-sm btn-outline-danger" onclick="deleteEvent(${event.id})">
                     <i class="bi bi-trash"></i>
@@ -122,7 +116,7 @@ function loadEvents() {
             `;
             });
 
-            // Update Dashboard Statistics
+            // Update Dashboard
             document.getElementById('totalEvents').innerText = data.length;
             document.getElementById('pendingCount').innerText = pendingCount;
         })
@@ -131,10 +125,6 @@ function loadEvents() {
         });
 }
 
-/**
- * Function to update event status (Approve/Cancel)
- * Used primarily by Admins
- */
 function updateStatus(eventId, newStatus) {
     const token = localStorage.getItem('token');
 
@@ -149,7 +139,7 @@ function updateStatus(eventId, newStatus) {
         .then(res => {
             if (res.ok) {
                 alert(`Event ${newStatus} Successfully!`);
-                loadEvents(); // Refresh the table
+                loadEvents();
             } else {
                 alert("Failed to update status. Check Admin permissions.");
             }
@@ -157,9 +147,7 @@ function updateStatus(eventId, newStatus) {
         .catch(err => console.error("Update Error:", err));
 }
 
-/**
- * Returns Bootstrap badge classes based on event status
- */
+
 function getStatusClass(status) {
     switch (status) {
         case 'PENDING': return 'bg-warning text-dark';
@@ -170,9 +158,7 @@ function getStatusClass(status) {
     }
 }
 
-/**
- * Clears local storage and redirects to login
- */
+
 function logout() {
     if (confirm("Are you sure you want to logout?")) {
         localStorage.removeItem('token');
@@ -181,12 +167,9 @@ function logout() {
     }
 }
 
-/**
- * Placeholder for Delete Event Logic
- */
+
 function deleteEvent(eventId) {
     if (confirm("Are you sure you want to cancel/delete this event?")) {
-        // You can implement an actual DELETE fetch call here similar to updateStatus
         updateStatus(eventId, 'CANCELLED');
     }
 }

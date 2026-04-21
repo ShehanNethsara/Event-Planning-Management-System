@@ -1,5 +1,10 @@
 const API_URL = "http://localhost:8080/api/v1/events";
 const token = localStorage.getItem("token");
+const currentRole = localStorage.getItem('userRole');
+
+if (!currentRole) {
+    window.location.href = 'login.html';
+}
 
 $(document).ready(function() {
     loadAllEvents();
