@@ -38,17 +38,14 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             return response.json();
         })
         .then(data => {
-            // --- වැදගත්ම පරීක්ෂාව ---
-            console.log("Backend Response Data:", data); // මෙතනින් බලන්න පුළුවන් ID එක එන නම
+            console.log("Backend Response Data:", data);
 
-            // Backend එකෙන් id හෝ userId කියන ඕනෑම නමකින් ආවොත් ඒක අල්ලගන්නවා
             const userIdToStore = data.userId || data.id || data.user_id;
 
             if (!userIdToStore) {
                 console.error("CRITICAL ERROR: User ID not found in backend response!", data);
                 alert("Login partially successful, but User ID was not received. Please contact admin.");
-                // ID එක නැතුව ඉස්සරහට යාම අවදානම් නිසා මෙතනින් නතර කළ හැකියි
-                // return;
+
             }
 
             // දත්ත localStorage එකේ සේව් කිරීම

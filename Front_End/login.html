@@ -3,41 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - EventPro</title>
+    <title>Login | EventPro Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* ඔයා කැමති ඒ Neon Gradient එක */
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            padding: 20px;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 1100px;
+            height: 650px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 32px;
+            display: flex;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.3);
+        }
+
+        /* වම් පැත්තේ Image එක modern colors එක්ක */
+        .image-side {
+            flex: 1.2;
+            background: linear-gradient(rgba(99, 102, 241, 0.4), rgba(168, 85, 247, 0.7)),
+            url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 60px;
+            color: white;
+            position: relative;
+        }
+
+        .image-side h2 {
+            font-weight: 800;
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            line-height: 1.1;
+        }
+
+        /* දකුණු පැත්තේ Form එක */
+        .form-side {
+            flex: 1;
+            padding: 60px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-top-right-radius: 32px;
+            border-bottom-right-radius: 32px;
+        }
+
+        .brand-logo {
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 40px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #4b5563;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            padding: 14px 18px;
+            border: 1.5px solid #f3f4f6;
+            background-color: #f9fafb;
+            transition: 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .form-control:focus {
+            border-color: #a855f7;
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1);
+        }
+
+        /* ඔයා එවපු image එකේ තියෙන වගේ modern button එක */
+        .btn-login {
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            font-weight: 700;
+            color: white;
+            width: 100%;
+            transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(168, 85, 247, 0.3);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(168, 85, 247, 0.4);
+            opacity: 0.95;
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .footer-link a {
+            color: #6366f1;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        @media (max-width: 992px) {
+            .image-side { display: none; }
+            .main-container { max-width: 450px; height: auto; }
+            .form-side { border-radius: 32px; padding: 40px; }
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 
-<nav class="navbar navbar-dark bg-dark mb-5">
-    <div class="container">
-        <a class="navbar-brand" href="index.html">EventPro</a>
+<div class="main-container">
+    <div class="image-side">
+        <h2>Unforgettable <br>Experiences.</h2>
+        <p class="opacity-75 lead">The next generation event management platform for professionals like you.</p>
+        <div class="mt-4">
+            <span class="badge bg-white bg-opacity-25 rounded-pill px-3 py-2 me-2">#ModernPlanning</span>
+            <span class="badge bg-white bg-opacity-25 rounded-pill px-3 py-2">#EventPro</span>
+        </div>
     </div>
-</nav>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-4">
-            <div class="card shadow">
-                <div class="card-body p-4">
-                    <h3 class="text-center mb-4">Login</h3>
-                    <form id="loginForm">
-                        <div class="mb-3">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" id="loginEmail" class="form-control" placeholder="name@example.com" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Password</label>
-                            <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100">Login</button>
-                    </form>
-                    <p class="text-center mt-3 small">Don't have an account? <a href="register.html">Register</a></p>
-                </div>
+    <div class="form-side">
+        <div class="brand-logo">EventPro.</div>
+
+        <h4 class="fw-bold text-dark mb-1">Hello Again!</h4>
+        <p class="text-muted small mb-4">Please enter your credentials to access your dashboard.</p>
+
+        <form id="loginForm">
+            <div class="mb-1">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="loginEmail" class="form-control" placeholder="name@domain.com" required>
             </div>
+            <div class="mb-1">
+                <div class="d-flex justify-content-between">
+                    <label class="form-label">Password</label>
+                    <a href="#" class="text-decoration-none small text-muted">Forgot?</a>
+                </div>
+                <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-login">
+                <i class="fas fa-sign-in-alt me-2"></i> Sign In Now
+            </button>
+        </form>
+
+        <div class="footer-link">
+            New here? <a href="register.html">Create an account</a>
         </div>
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="js/login.js"></script>
+
 </body>
 </html>

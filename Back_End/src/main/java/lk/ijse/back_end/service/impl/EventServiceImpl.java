@@ -152,5 +152,13 @@ public class EventServiceImpl implements EventService {
         Event savedEvent = eventRepository.save(event);
         return modelMapper.map(savedEvent, EventDTO.class);
     }
-
+    // EventServiceImpl.java ඇතුළත
+    @Override
+    public List<EventDTO> getRequestsByVendorEmail(String email) {
+        // Repository එකෙන් email එක සහ status එක REQUESTED වන ඒව හොයන්න
+        List<Event> events = eventRepository.findByVendorEmailAndStatus(email, "REQUESTED");
+        return events.stream()
+                .map(e -> modelMapper.map(e, EventDTO.class))
+                .collect(Collectors.toList());
+    }
 }

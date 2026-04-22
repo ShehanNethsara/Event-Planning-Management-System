@@ -3,68 +3,199 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Secure Payment | EventPro</title>
+  <title>Secure Checkout | EventPro Elite</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #050810;
+      background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%);
+      color: #ffffff;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .payment-card {
+      background: rgba(17, 24, 39, 0.9);
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 32px;
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+    }
+
+    .header-icon {
+      width: 65px; height: 65px;
+      background: rgba(99, 102, 241, 0.1);
+      color: #6366f1;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 1.8rem;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .form-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .form-control {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      color: #ffffff !important;
+      border-radius: 12px !important;
+      padding: 14px 18px !important;
+    }
+
+    .form-control:focus {
+      border-color: #6366f1 !important;
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.2) !important;
+    }
+
+    /* --- Amount Input Styling --- */
+    .amount-section {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 20px;
+      padding: 20px;
+      margin: 25px 0;
+    }
+
+    .amount-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .currency-tag {
+      font-weight: 800;
+      color: #6366f1;
+      font-size: 1.2rem;
+    }
+
+    #payableAmount {
+      background: transparent !important;
+      border: none !important;
+      color: #ffffff !important;
+      font-size: 1.8rem !important;
+      font-weight: 800 !important;
+      padding: 0 !important;
+      width: 100%;
+      text-align: right;
+    }
+
+    #payableAmount:focus {
+      box-shadow: none !important;
+      outline: none !important;
+    }
+
+    .btn-pay {
+      background: linear-gradient(90deg, #6366f1, #a855f7);
+      border: none; color: white;
+      padding: 16px; border-radius: 15px;
+      font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1px; width: 100%;
+      transition: 0.3s;
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-pay:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(99, 102, 241, 0.5);
+    }
+
+    .cancel-link { color: #94a3b8; text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+    .cancel-link:hover { color: #ffffff; }
+
+  </style>
 </head>
-<body class="bg-light d-flex align-items-center vh-100">
+<body>
 
-<div class="container">
-  <div class="row justify-content-center">
-    <div class="col-md-5">
-      <div class="card border-0 shadow-lg rounded-4 p-5 bg-white">
-        <div class="text-center mb-4">
-          <div class="bg-primary bg-opacity-10 d-inline-block p-3 rounded-circle mb-3">
-            <i class="fas fa-shield-alt text-primary fa-2x"></i>
-          </div>
-          <h3 class="fw-bold">Secure Payment</h3>
-          <p class="text-muted">Enter your card details to complete booking</p>
-        </div>
+<div class="payment-card text-center">
+  <div class="header-icon">
+    <i class="fas fa-lock"></i>
+  </div>
+  <h3 class="fw-bold mb-1">Secure Payment</h3>
+  <p class="text-secondary small mb-4">Enter details and confirm your amount</p>
 
-        <form id="paymentForm">
-          <div class="mb-3">
-            <label class="form-label small fw-bold text-muted">CARDHOLDER NAME</label>
-            <input type="text" class="form-control p-3 bg-light border-0" placeholder="J. DOE" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label small fw-bold text-muted">CARD NUMBER</label>
-            <div class="input-group">
-              <span class="input-group-text bg-light border-0"><i class="fas fa-credit-card"></i></span>
-              <input type="text" class="form-control p-3 bg-light border-0" placeholder="0000 0000 0000 0000" required>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-6 mb-3">
-              <label class="form-label small fw-bold text-muted">EXPIRY</label>
-              <input type="text" class="form-control p-3 bg-light border-0" placeholder="MM/YY" required>
-            </div>
-            <div class="col-6 mb-3">
-              <label class="form-label small fw-bold text-muted">CVV</label>
-              <input type="password" class="form-control p-3 bg-light border-0" placeholder="***" required>
-            </div>
-          </div>
+  <form id="paymentForm" class="text-start">
+    <div class="mb-3">
+      <label class="form-label">Cardholder Name</label>
+      <input type="text" class="form-control" placeholder="YOUR FULL NAME" required>
+    </div>
 
-          <div class="bg-primary text-white p-3 rounded-3 mb-4 d-flex justify-content-between align-items-center">
-            <span>Amount to Pay:</span>
-            <h4 class="mb-0 fw-bold" id="totalAmountDisplay">LKR 0.00</h4>          </div>
+    <div class="mb-3">
+      <label class="form-label">Card Number</label>
+      <input type="text" class="form-control" placeholder="0000 0000 0000 0000" required>
+    </div>
 
-          <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill shadow p-3 fw-bold">
-            <i class="fas fa-lock me-2"></i>Confirm & Pay Now
-          </button>
-          <a href="user_dashboard.html" class="btn btn-link w-100 text-muted mt-2 text-decoration-none small">Cancel & Return</a>
-        </form>
+    <div class="row">
+      <div class="col-6 mb-3">
+        <label class="form-label">Expiration</label>
+        <input type="text" class="form-control" placeholder="MM / YY" required>
+      </div>
+      <div class="col-6 mb-3">
+        <label class="form-label">CVV</label>
+        <input type="password" class="form-control" placeholder="***" required>
       </div>
     </div>
-  </div>
+
+    <div class="amount-section">
+      <label class="form-label d-block mb-2">Confirm Payable Amount (LKR)</label>
+      <div class="amount-input-wrapper">
+        <span class="currency-tag">LKR</span>
+        <input type="number" id="payableAmount" step="0.01" value="0.00" required>
+      </div>
+      <small class="text-info mt-1 d-block" style="font-size: 0.65rem;">* You can manually adjust the amount if needed.</small>
+    </div>
+
+    <button type="submit" class="btn btn-pay">
+      <i class="fas fa-shield-check me-2"></i> Confirm & Pay Now
+    </button>
+
+    <div class="mt-4 text-center">
+      <a href="user_dashboard.html" class="cancel-link">
+        <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+      </a>
+    </div>
+  </form>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+  $(document).ready(function() {
+    // LocalStorage එකෙන් මුදල අරන් input එකට දාමු
+    const amt = localStorage.getItem('payingAmount');
+    if (amt) {
+      $('#payableAmount').val(parseFloat(amt).toFixed(2));
+    }
+  });
+
   $('#paymentForm').submit(function(e) {
     e.preventDefault();
-    alert("Payment Successful! Your event is now confirmed.");
+    const finalAmount = $('#payableAmount').val();
+
+    // මුදල 0 ට වඩා වැඩිද බලමු
+    if(finalAmount <= 0) {
+      alert("Please enter a valid amount.");
+      return;
+    }
+
+    alert("Processing LKR " + finalAmount + "...\nTransaction Successful!");
     window.location.href = 'user_dashboard.html';
   });
 </script>

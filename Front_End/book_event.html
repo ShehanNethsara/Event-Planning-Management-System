@@ -3,89 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Event | EventPro</title>
+    <title>Reserve Event | EventPro Elite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --neon-blue: #3b82f6;
+            --neon-purple: #8b5cf6;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #050810;
+            color: #fff;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* --- Background Animation --- */
+        .bg-slider {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: linear-gradient(rgba(5, 8, 16, 0.8), rgba(5, 8, 16, 0.8)),
+            url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1500&q=80');
+            background-size: cover;
+            background-position: center;
+            animation: zoomInfinite 20s linear infinite alternate;
+        }
+
+        @keyframes zoomInfinite {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 280px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            position: fixed;
+            height: 100vh;
+            padding: 30px 20px;
+            z-index: 1000;
+        }
+
+        .brand-logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 50px;
+            display: block;
+            text-decoration: none;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.5) !important;
+            padding: 14px 18px !important;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .nav-link:hover, .active-link {
+            background: rgba(59, 130, 246, 0.1);
+            color: #fff !important;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: 280px;
+            padding: 60px 10%;
+        }
+
+        /* --- Event Category Cards --- */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .cat-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 20px 10px;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .cat-card i { font-size: 1.5rem; margin-bottom: 10px; display: block; color: var(--neon-blue); }
+        .cat-card span { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+
+        .cat-card:hover, .cat-card.active {
+            background: var(--neon-blue);
+            border-color: var(--neon-blue);
+            transform: translateY(-5px);
+        }
+        .cat-card:hover i, .cat-card.active i { color: #fff; }
+
+        /* --- Glass Form --- */
+        .booking-glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 50px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 12px;
+        }
+
+        .form-control, .form-select {
+            background: rgba(255,255,255,0.05) !important;
+            border: 1px solid var(--glass-border) !important;
+            border-radius: 16px !important;
+            padding: 15px 20px !important;
+            color: #fff !important;
+            transition: 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--neon-blue) !important;
+            background: rgba(255,255,255,0.1) !important;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2) !important;
+        }
+
+        .btn-confirm {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border: none;
+            padding: 20px;
+            border-radius: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #fff;
+            width: 100%;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+
+        .btn-confirm:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; padding: 40px 20px; }
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
+
+<div class="bg-slider"></div>
 
 <div class="d-flex">
-    <nav class="sidebar bg-dark text-white p-4 vh-100 position-fixed" style="width: 260px;">
-        <div class="mb-5 text-center">
-            <h3 class="fw-bold text-primary">EVENT<span class="text-white">PRO</span></h3>
-            <small class="text-muted">Customer Portal</small>
+    <nav class="sidebar">
+        <a href="#" class="brand-logo">EventPro<span>.</span></a>
+        <div class="nav flex-column">
+            <a href="user_dashboard.html" class="nav-link"><i class="fas fa-th-large me-3"></i> Dashboard</a>
+            <a href="book_event.html" class="nav-link active-link"><i class="fas fa-plus-circle me-3"></i> New Event</a>
+            <a href="my_reports.html" class="nav-link"><i class="fas fa-file-invoice me-3"></i> Invoices</a>
+            <a onclick="logout()" class="nav-link text-danger mt-5" style="cursor:pointer"><i class="fas fa-power-off me-3"></i> Logout</a>
         </div>
-        <ul class="nav flex-column gap-2">
-            <li class="nav-item">
-                <a href="user_dashboard.html" class="nav-link text-white-50 hover-link">
-                    <i class="fas fa-home me-2"></i> Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="book_event.html" class="nav-link text-white active-link bg-primary rounded shadow-sm">
-                    <i class="fas fa-plus-circle me-2"></i> Book New Event
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="my_reports.html" class="nav-link text-white-50 hover-link">
-                    <i class="fas fa-file-invoice-dollar me-2"></i> My Invoices
-                </a>
-            </li>
-            <li class="nav-item mt-5 pt-5">
-                <hr class="text-muted">
-                <button onclick="logout()" class="btn btn-outline-danger w-100 border-0 text-start">
-                    <i class="fas fa-sign-out-alt me-2"></i> Logout
-                </button>
-            </li>
-        </ul>
     </nav>
 
-    <main class="flex-grow-1 p-5" style="margin-left: 260px;">
-        <header class="mb-5">
-            <h2 class="fw-bold text-dark">Reserve Your Event</h2>
-            <p class="text-muted">Fill out the details below to request a new event booking.</p>
-        </header>
+    <main class="main-content flex-grow-1">
+        <div class="mb-5">
+            <h1 class="fw-800 display-5">Create <span style="color: var(--neon-blue);">Magic.</span></h1>
+            <p class="text-white-50">Select your category and provide event details to get a quote.</p>
+        </div>
 
-        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+        <div class="category-grid">
+            <div class="cat-card" onclick="selectType('WEDDING', this)">
+                <i class="fas fa-ring"></i>
+                <span>Wedding</span>
+            </div>
+            <div class="cat-card" onclick="selectType('BIRTHDAY', this)">
+                <i class="fas fa-cake-candles"></i>
+                <span>Birthday</span>
+            </div>
+            <div class="cat-card" onclick="selectType('CORPORATE', this)">
+                <i class="fas fa-briefcase"></i>
+                <span>Corporate</span>
+            </div>
+            <div class="cat-card" onclick="selectType('CONCERT', this)">
+                <i class="fas fa-guitar"></i>
+                <span>Concert</span>
+            </div>
+            <div class="cat-card" onclick="selectType('OTHER', this)">
+                <i class="fas fa-stars"></i>
+                <span>Other</span>
+            </div>
+        </div>
+
+        <div class="booking-glass-panel">
             <form id="bookEventForm">
+                <input type="hidden" id="eventType" required>
+
                 <div class="row g-4">
-                    <div class="col-md-12">
-                        <label for="eventTitle" class="form-label fw-semibold">Event Title / Name</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-0"><i class="fas fa-pen text-primary"></i></span>
-                            <input type="text" id="eventTitle" class="form-control bg-light border-0 p-3" placeholder="e.g. Wedding Ceremony - Shehan & Shavindi" required>
-                        </div>
+                    <div class="col-12">
+                        <label class="form-label">Event Title</label>
+                        <input type="text" id="eventTitle" class="form-control" placeholder="What should we call your event?" required>
                     </div>
 
                     <div class="col-md-6">
-                        <label for="eventType" class="form-label fw-semibold">Event Type</label>
-                        <select id="eventType" class="form-select bg-light border-0 p-3" required>
-                            <option value="" selected disabled>Select Type</option>
-                            <option value="WEDDING">Wedding</option>
-                            <option value="BIRTHDAY">Birthday Party</option>
-                            <option value="CORPORATE">Corporate Meeting</option>
-                            <option value="CONCERT">Musical Concert</option>
-                            <option value="OTHER">Other Event</option>
-                        </select>
+                        <label class="form-label">Event Date</label>
+                        <input type="date" id="eventDate" class="form-control" required>
                     </div>
 
                     <div class="col-md-6">
-                        <label for="eventDate" class="form-label fw-semibold">Planned Date</label>
-                        <input type="date" id="eventDate" class="form-control bg-light border-0 p-3" required>
+                        <label class="form-label">Location / City</label>
+                        <input type="text" id="eventLocation" class="form-control" placeholder="Where will it happen?" required>
                     </div>
 
-                    <div class="col-md-12">
-                        <label for="eventDesc" class="form-label fw-semibold">Special Requirements</label>
-                        <textarea id="eventDesc" class="form-control bg-light border-0 p-3" rows="4" placeholder="Mention any specific details, guest count, or themes..."></textarea>
+                    <div class="col-12">
+                        <label class="form-label">Description & Special Notes</label>
+                        <textarea id="eventDesc" class="form-control" rows="4" placeholder="Tell us about the guest count, theme, and requirements..."></textarea>
                     </div>
 
-                    <div class="col-md-12 mt-5">
-                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill shadow p-3 fw-bold">
-                            <i class="fas fa-paper-plane me-2"></i>Submit Booking Request
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-confirm">
+                            <i class="fas fa-paper-plane me-2"></i> Submit Reservation Request
                         </button>
-                        <p class="text-center mt-3 text-muted small">Our admin team will review and approve your request within 24 hours.</p>
                     </div>
                 </div>
             </form>
@@ -96,10 +255,28 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="js/book_event.js"></script>
 <script>
-    // Simple Logout Function
+    // පින්තූර cards වලින් event type එක තෝරාගැනීම
+    function selectType(type, element) {
+        $('.cat-card').removeClass('active');
+        $(element).addClass('active');
+        $('#eventType').val(type);
+
+        // Dynamic Background change (Optional - ලස්සනට පින්තූර මාරු කරන්න)
+        const images = {
+            'WEDDING': 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1500&q=80',
+            'BIRTHDAY': 'https://images.unsplash.com/photo-1530103043960-ef38714abb15?auto=format&fit=crop&w=1500&q=80',
+            'CORPORATE': 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1500&q=80',
+            'CONCERT': 'https://images.unsplash.com/photo-1459749411177-042180ce6742?auto=format&fit=crop&w=1500&q=80',
+            'OTHER': 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1500&q=80'
+        };
+        $('.bg-slider').css('background-image', `linear-gradient(rgba(5, 8, 16, 0.8), rgba(5, 8, 16, 0.8)), url('${images[type]}')`);
+    }
+
     function logout() {
-        localStorage.clear();
-        window.location.href = 'login.html';
+        if(confirm("Logout from the portal?")) {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
     }
 </script>
 </body>

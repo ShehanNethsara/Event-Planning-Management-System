@@ -58,8 +58,8 @@ public class SecurityConfig {
                 .map(user -> org.springframework.security.core.userdetails.User.builder()
                         .username(user.getEmail())
                         .password(user.getPassword())
-                        .roles(user.getRole().toString())
+                        .authorities(user.getRole().name()) // Roles වෙනුවට Authorities දීම වඩාත් නිවැරදියි
                         .build())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 }

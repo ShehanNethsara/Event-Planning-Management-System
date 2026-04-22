@@ -3,98 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice | EventPro</title>
+    <title>Official Invoice | EventPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body { font-family: 'Poppins', sans-serif; }
+        :root {
+            --bg-deep: #0a0f1c;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --neon-blue: #6366f1;
+            --neon-purple: #a855f7;
+            --text-main: #ffffff;
+            --text-dim: #94a3b8;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-deep);
+            background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%);
+            color: var(--text-main);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* --- Modern Sidebar --- */
+        .sidebar {
+            width: 280px;
+            background: rgba(10, 15, 28, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            position: fixed;
+            height: 100vh;
+            padding: 35px 25px;
+            z-index: 1000;
+        }
+
+        .brand-logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 50px;
+            display: block;
+            text-decoration: none;
+        }
+
+        .nav-link {
+            color: var(--text-dim) !important;
+            padding: 14px 18px !important;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .nav-link:hover, .active-link {
+            background: rgba(99, 102, 241, 0.1);
+            color: white !important;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: 280px;
+            padding: 50px;
+        }
+
+        /* --- Invoice Card Design --- */
+        .invoice-card {
+            background: white; /* Print එකට පහසු වෙන්න card එක white කළා */
+            color: #1e293b;
+            border-radius: 30px;
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.4);
+        }
+
+        .invoice-header {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            padding: 50px;
+            color: white;
+        }
+
+        .invoice-body { padding: 60px; }
+
+        .service-table th {
+            background: #f8fafc;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            padding: 20px;
+            border: none;
+        }
+
+        .service-table td { padding: 30px 20px; border-bottom: 1px solid #f1f5f9; }
+
+        .grand-total-box {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        /* --- Action Buttons --- */
+        .btn-modern {
+            padding: 14px 30px;
+            border-radius: 14px;
+            font-weight: 700;
+            transition: 0.3s;
+        }
+
+        .btn-pay { background: var(--neon-blue); color: white; border: none; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); }
+        .btn-pay:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4); color: white; }
+
+        /* --- Print Optimization --- */
         @media print {
-            .sidebar, .no-print, .btn { display: none !important; }
-            main { margin-left: 0 !important; padding: 0 !important; }
-            .card { border: none !important; box-shadow: none !important; }
+            .sidebar, .no-print { display: none !important; }
+            .main-content { margin-left: 0 !important; padding: 0 !important; }
+            body { background: white !important; }
+            .invoice-card { box-shadow: none !important; border-radius: 0 !important; }
+            .invoice-header { background: #6366f1 !important; -webkit-print-color-adjust: exact; }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { width: 80px; }
+            .sidebar span, .brand-logo { display: none; }
+            .main-content { margin-left: 80px; padding: 30px; }
         }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
 <div class="d-flex">
-    <nav class="sidebar bg-dark text-white p-4 vh-100 position-fixed no-print" style="width: 260px;">
-        <div class="mb-5 text-center">
-            <h3 class="fw-bold text-primary">EVENT<span class="text-white">PRO</span></h3>
+    <nav class="sidebar no-print">
+        <a href="#" class="brand-logo">EventPro<span>.</span></a>
+        <div class="nav flex-column gap-2">
+            <a href="user_dashboard.html" class="nav-link"><i class="fas fa-grid-2"></i> <span>Dashboard</span></a>
+            <a href="my_reports.html" class="nav-link active-link"><i class="fas fa-file-invoice-dollar"></i> <span>My Invoices</span></a>
+            <hr class="opacity-10">
+            <button onclick="window.location.href='my_reports.html'" class="btn btn-outline-light btn-sm w-100 rounded-pill">Back to Reports</button>
         </div>
-        <ul class="nav flex-column gap-2">
-            <li class="nav-item"><a href="user_dashboard.html" class="nav-link text-white-50"><i class="fas fa-home me-2"></i> Dashboard</a></li>
-            <li class="nav-item"><a href="my_reports.html" class="nav-link text-white active-link bg-primary rounded shadow-sm"><i class="fas fa-file-invoice-dollar me-2"></i> My Invoices</a></li>
-            <li class="nav-item mt-5">
-                <button onclick="window.location.href='my_reports.html'" class="btn btn-outline-light btn-sm w-100">Back to Reports</button>
-            </li>
-        </ul>
     </nav>
 
-    <main class="flex-grow-1 p-5" style="margin-left: 260px;">
-        <div class="container">
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white">
-                <div class="card-header bg-primary text-white p-4 d-flex justify-content-between align-items-center">
+    <main class="main-content flex-grow-1">
+        <div class="container-fluid">
+            <div class="invoice-card mx-auto" style="max-width: 900px;">
+                <div class="invoice-header d-flex justify-content-between align-items-center">
                     <div>
-                        <h3 class="mb-0 fw-bold">INVOICE</h3>
-                        <small class="opacity-75">Event Planning Management System</small>
+                        <h1 class="fw-800 m-0">INVOICE</h1>
+                        <p class="m-0 opacity-75">Professional Event Management Services</p>
                     </div>
                     <div class="text-end">
-                        <h5 class="mb-0" id="invoiceIdDisplay">#INV-LOADING</h5>
-                        <small class="opacity-75" id="currentDateDisplay"></small>
+                        <h4 class="fw-bold m-0" id="invoiceIdDisplay">#INV-LOADING</h4>
+                        <p class="m-0 opacity-75" id="currentDateDisplay">--/--/--</p>
                     </div>
                 </div>
 
-                <div class="card-body p-5">
+                <div class="invoice-body">
                     <div class="row mb-5">
                         <div class="col-6">
-                            <h6 class="text-muted text-uppercase small fw-bold mb-3">Billed To:</h6>
-                            <h5 class="fw-bold mb-1" id="invClientName">User Name</h5>
-                            <p class="text-muted mb-0" id="invClientEmail">user@example.com</p>
+                            <label class="text-muted small fw-bold text-uppercase mb-2 d-block">Billed To</label>
+                            <h5 class="fw-bold" id="invClientName">Loading...</h5>
+                            <p class="text-muted" id="invClientEmail">...</p>
                         </div>
                         <div class="col-6 text-end">
-                            <h6 class="text-muted text-uppercase small fw-bold mb-3">Event Summary:</h6>
-                            <h5 class="fw-bold mb-1 text-primary" id="invEventTitle">Event Title</h5>
-                            <p class="text-muted mb-0">Date: <span id="invEventDate">--/--/--</span></p>
-                            <p class="text-muted mb-0">Event ID: <span id="invEventId">#00</span></p>
+                            <label class="text-muted small fw-bold text-uppercase mb-2 d-block">Event Summary</label>
+                            <h5 class="fw-bold text-primary" id="invEventTitle">Loading Event...</h5>
+                            <p class="text-muted mb-1">Date: <span id="invEventDate">--/--/--</span></p>
+                            <p class="text-muted">Event ID: <span id="invEventId">#000</span></p>
                         </div>
                     </div>
 
                     <div class="table-responsive">
-                        <table class="table table-borderless">
-                            <thead class="bg-light">
+                        <table class="table service-table align-middle">
+                            <thead>
                             <tr>
-                                <th class="py-3 ps-3">Service Description</th>
-                                <th class="py-3 text-end pe-3">Amount</th>
+                                <th>Description</th>
+                                <th class="text-end">Amount</th>
                             </tr>
                             </thead>
-                            <tbody class="border-bottom">
+                            <tbody>
                             <tr>
-                                <td class="py-4 ps-3">
-                                    <h6 class="fw-bold mb-1" id="itemTitle">Management Fee</h6>
-                                    <small class="text-muted">Includes resource allocation and coordination support.</small>
+                                <td>
+                                    <h6 class="fw-bold mb-1" id="itemTitle">Event Management Fee</h6>
+                                    <p class="text-muted small mb-0">Resource allocation, vendor coordination, and onsite management.</p>
                                 </td>
-                                <td class="py-4 text-end pe-3 fw-bold fs-5 text-dark" id="unitAmount">LKR 0.00</td>
+                                <td class="text-end fw-bold fs-5" id="unitAmount">LKR 0.00</td>
                             </tr>
                             </tbody>
-                            <tfoot>
-                            <tr>
-                                <td class="pt-4 text-end text-muted fw-bold border-0">Grand Total:</td>
-                                <td class="pt-4 text-end text-primary fw-bold fs-3 pe-3 border-0" id="totalAmount">LKR 0.00</td>
-                            </tr>
-                            </tfoot>
                         </table>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <div class="grand-total-box text-end" style="min-width: 250px;">
+                            <p class="text-muted fw-bold mb-1">GRAND TOTAL</p>
+                            <h2 class="fw-800 text-primary mb-0" id="totalAmount">LKR 0.00</h2>
+                        </div>
                     </div>
 
                     <div class="mt-5 d-flex justify-content-center gap-3 no-print" id="actionButtons">
                     </div>
                 </div>
 
-                <div class="card-footer bg-light p-4 text-center text-muted small border-0">
-                    Thank you for choosing EventPro. This is a computer-generated invoice.
+                <div class="bg-light p-4 text-center text-muted small">
+                    This is a digitally generated invoice by <strong>EventPro Systems</strong>. Thank you for your business!
                 </div>
             </div>
         </div>
@@ -106,56 +223,37 @@
     $(document).ready(function() {
         const token = localStorage.getItem('token');
         const userEmail = localStorage.getItem('userEmail');
-
-        // URL එකෙන් ID එක ලබා ගැනීම
         const urlParams = new URLSearchParams(window.location.search);
         const eventId = urlParams.get('id');
 
-        if (!eventId || !token) {
-            window.location.href = 'my_reports.html';
-            return;
-        }
+        if (!eventId || !token) { window.location.href = 'my_reports.html'; return; }
 
-        // මූලික දත්ත පෙන්වීම
         $('#invClientEmail').text(userEmail);
-        $('#invClientName').text(userEmail ? userEmail.split('@')[0].toUpperCase() : 'CLIENT');
+        $('#invClientName').text(userEmail ? userEmail.split('@')[0].toUpperCase() : 'VALUED CLIENT');
         $('#currentDateDisplay').text(new Date().toLocaleDateString('en-GB'));
 
-        // Backend Invoice Service එකෙන් දත්ත ලබා ගැනීම
         $.ajax({
             url: `http://localhost:8080/api/v1/invoices/my-invoices?email=${userEmail}`,
             method: "GET",
             headers: { "Authorization": "Bearer " + token },
             success: function(invoices) {
-                // අපිට අවශ්‍ය Event එකට අදාළ Invoice එක හොයාගමු
                 const inv = invoices.find(i => i.eventId == eventId);
-
                 if (inv) {
                     $('#invoiceIdDisplay').text('#INV-' + inv.id);
                     $('#invEventTitle').text(inv.eventTitle);
                     $('#invEventDate').text(inv.eventDate);
                     $('#invEventId').text('#EV-' + inv.eventId);
-                    $('#itemTitle').text(inv.eventTitle + " - Total Fees");
 
                     const formattedAmt = "LKR " + inv.amount.toLocaleString();
                     $('#unitAmount').text(formattedAmt);
                     $('#totalAmount').text(formattedAmt);
 
-                    // Payment Status එක අනුව Buttons වෙනස් කරමු
-                    let buttons = `<button class="btn btn-outline-secondary btn-lg rounded-pill px-4 shadow-sm" onclick="window.print()"><i class="fas fa-print me-2"></i>Print PDF</button>`;
-
+                    let buttons = `<button class="btn btn-outline-dark btn-modern" onclick="window.print()"><i class="fas fa-print me-2"></i>Download PDF</button>`;
                     if (inv.status === 'UNPAID') {
-                        buttons = `<button class="btn btn-success btn-lg rounded-pill px-5 shadow-sm" onclick="payNow(${inv.id}, ${inv.amount})"><i class="fas fa-credit-card me-2"></i>Pay Now</button>` + buttons;
+                        buttons = `<button class="btn btn-pay btn-modern me-2" onclick="payNow(${inv.id}, ${inv.amount})"><i class="fas fa-credit-card me-2"></i>Complete Payment</button>` + buttons;
                     }
                     $('#actionButtons').html(buttons);
-
-                } else {
-                    alert("Invoice details not found!");
-                    window.location.href = 'my_reports.html';
                 }
-            },
-            error: function() {
-                alert("Error loading invoice from server.");
             }
         });
     });

@@ -2,63 +2,146 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Reports | EventPro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Reports | EventPro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        body { font-family: 'Poppins', sans-serif; }
-        .sidebar { min-height: 100vh; z-index: 1000; }
-        .active-link { background: #0d6efd !important; color: white !important; }
-        .card { border-radius: 15px; }
-        .badge { font-weight: 500; }
+        body {
+            /* අකුරු පේන්නේ නැති ප්‍රශ්නය නැති කරන්න Standard Fonts පාවිච්චි කළා */
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #050810; /* පට්ටම තද පසුබිමක් */
+            color: #ffffff; /* පිරිසිදු සුදු අකුරු */
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 260px;
+            background: #0f172a;
+            border-right: 1px solid #1e293b;
+            position: fixed;
+            height: 100vh;
+            padding: 30px 20px;
+            z-index: 1000;
+        }
+
+        .brand-logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #6366f1 !important; /* Indigo Color */
+            margin-bottom: 40px;
+            display: block;
+            text-decoration: none;
+        }
+
+        .nav-link {
+            color: #94a3b8 !important;
+            padding: 12px 15px !important;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .nav-link:hover, .active-link {
+            background: rgba(99, 102, 241, 0.15);
+            color: #ffffff !important;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: 260px;
+            padding: 50px;
+        }
+
+        /* --- Table Card (Contrast Fix) --- */
+        .report-card {
+            background: #111827; /* තද අළු/නිල් පසුබිම */
+            border: 1px solid #1f2937;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .table { color: #ffffff; margin-bottom: 0; }
+        .table thead { background: #1f2937; }
+        .table th {
+            color: #818cf8; /* ලා නිල් අකුරු Header එකට */
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 20px;
+            border: none;
+        }
+        .table td {
+            padding: 20px;
+            border-bottom: 1px solid #1f2937;
+            vertical-align: middle;
+            color: #f3f4f6; /* පිරිසිදු ලා අළු/සුදු අකුරු */
+        }
+
+        /* --- Status Badges --- */
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 800;
+        }
+        .paid { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .unpaid { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+        /* --- Buttons --- */
+        .btn-action {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .btn-view { background: #374151; color: white; margin-right: 5px; }
+
+        @media (max-width: 992px) {
+            .sidebar { width: 80px; }
+            .sidebar span, .brand-logo { display: none; }
+            .main-content { margin-left: 80px; padding: 20px; }
+        }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
 <div class="d-flex">
-    <nav class="sidebar bg-dark text-white p-4 vh-100 position-fixed" style="width: 260px;">
-        <div class="mb-5 text-center">
-            <h3 class="fw-bold text-primary">EVENT<span class="text-white">PRO</span></h3>
+    <nav class="sidebar">
+        <a href="#" class="brand-logo">EVENTPRO</a>
+        <div class="nav flex-column">
+            <a href="user_dashboard.html" class="nav-link"><i class="fas fa-chart-pie me-2"></i> <span>Dashboard</span></a>
+            <a href="my_reports.html" class="nav-link active-link"><i class="fas fa-file-invoice me-2"></i> <span>Invoices</span></a>
+            <a href="book_event.html" class="nav-link"><i class="fas fa-plus me-2"></i> <span>Book New</span></a>
+            <hr style="border-color: #1e293b;">
+            <a onclick="logout()" class="nav-link text-danger" style="cursor: pointer;"><i class="fas fa-power-off me-2"></i> <span>Logout</span></a>
         </div>
-        <ul class="nav flex-column gap-2">
-            <li class="nav-item">
-                <a href="user_dashboard.html" class="nav-link text-white-50">
-                    <i class="fas fa-home me-2"></i> Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="my_reports.html" class="nav-link text-white active-link rounded shadow-sm">
-                    <i class="fas fa-file-invoice-dollar me-2"></i> My Invoices
-                </a>
-            </li>
-            <li class="nav-item mt-5">
-                <button onclick="logout()" class="btn btn-outline-danger w-100 border-0 text-start">
-                    <i class="fas fa-sign-out-alt me-2"></i> Logout
-                </button>
-            </li>
-        </ul>
     </nav>
 
-    <main class="flex-grow-1 p-5" style="margin-left: 260px;">
-        <div class="d-flex justify-content-between align-items-center mb-5">
-            <div>
-                <h2 class="fw-bold text-dark">Financial Reports</h2>
-                <p class="text-muted">View and download your event invoices and track payments.</p>
-            </div>
+    <main class="main-content flex-grow-1">
+        <div class="mb-5">
+            <h2 style="font-weight: 800;">Billing <span style="color: #6366f1;">History</span></h2>
+            <p style="color: #9ca3af;">Track your payments and download event invoices.</p>
         </div>
 
-        <div class="card border-0 shadow-sm overflow-hidden">
-            <div class="card-header bg-white p-4 border-0">
-                <h5 class="fw-bold mb-0">Invoice History</h5>
-            </div>
-            <div class="table-responsive px-4 pb-4">
-                <table class="table align-middle table-hover">
-                    <thead class="text-muted small text-uppercase">
+        <div class="report-card">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
                     <tr>
                         <th>Invoice ID</th>
-                        <th>Event Title</th>
+                        <th>Event Description</th>
                         <th>Issued Date</th>
                         <th>Amount</th>
                         <th>Status</th>
@@ -68,8 +151,8 @@
                     <tbody id="invoiceTableBody">
                     <tr>
                         <td colspan="6" class="text-center py-5">
-                            <div class="spinner-border text-primary"></div>
-                            <p class="mt-2">Loading your invoices...</p>
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-3" style="color: #9ca3af;">Syncing invoices...</p>
                         </td>
                     </tr>
                     </tbody>
@@ -81,91 +164,46 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function() {
-        console.log("Page Loaded. Checking LocalStorage...");
-        console.log("Token:", localStorage.getItem('token'));
-        console.log("Email:", localStorage.getItem('userEmail'));
-
-        loadMyInvoices();
-    });
+    // පේජ් එක load වෙද්දී දත්ත ගේමු
+    $(document).ready(function() { loadMyInvoices(); });
 
     function loadMyInvoices() {
         const token = localStorage.getItem('token');
         const email = localStorage.getItem('userEmail');
 
-        if (!token || !email) {
-            console.error("Missing token or email! Redirecting to login...");
-            window.location.href = 'login.html';
-            return;
-        }
+        if (!token || !email) { window.location.href = 'login.html'; return; }
 
         $.ajax({
             url: `http://localhost:8080/api/v1/invoices/my-invoices?email=${email}`,
             method: "GET",
             headers: { "Authorization": "Bearer " + token },
             success: function(invoices) {
-                console.log("Data successfully fetched from Backend:", invoices);
-
                 let rows = "";
-
                 if (!invoices || invoices.length === 0) {
-                    console.warn("Backend returned an empty list for email:", email);
-                    rows = `<tr><td colspan="6" class="text-center py-5 text-muted">No invoices found for your account.</td></tr>`;
+                    rows = `<tr><td colspan="6" class="text-center py-5">No invoices found.</td></tr>`;
                 } else {
                     invoices.forEach(inv => {
-                        // Backend එකෙන් එන field names හරියටම check කරමු
-                        const id = inv.id;
-                        const title = inv.eventTitle || 'No Title';
-                        const date = inv.issuedDate || 'No Date';
-                        const amount = inv.amount || 0;
-                        const status = inv.status || 'UNKNOWN';
-
-                        const statusBadge = status === 'PAID'
-                            ? 'bg-success text-success'
-                            : 'bg-warning text-warning';
-
+                        const statusClass = inv.status === 'PAID' ? 'paid' : 'unpaid';
                         rows += `
                             <tr>
-                                <td class="fw-bold text-primary">#INV-${id}</td>
-                                <td><div class="fw-bold text-dark">${title}</div></td>
-                                <td><i class="far fa-calendar-alt me-2 text-muted"></i>${date}</td>
-                                <td class="fw-bold text-dark">LKR ${amount.toLocaleString()}</td>
-                                <td><span class="badge ${statusBadge} bg-opacity-10 rounded-pill px-3">${status}</span></td>
+                                <td style="font-weight: 700; color: #818cf8;">#INV-${inv.id}</td>
+                                <td style="font-weight: 600;">${inv.eventTitle}</td>
+                                <td style="color: #9ca3af;">${inv.issuedDate}</td>
+                                <td style="font-weight: 700;">LKR ${inv.amount.toLocaleString()}</td>
+                                <td><span class="status-badge ${statusClass}">${inv.status}</span></td>
                                 <td class="text-center">
-                                    <div class="btn-group">
-                                        <a href="invoice_view.html?id=${id}" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
-                                            <i class="fas fa-eye me-1"></i> View
-                                        </a>
-                                        ${status === 'UNPAID' ? `
-                                            <button onclick="payNow(${id}, ${amount})" class="btn btn-sm btn-success rounded-pill px-3">
-                                                <i class="fas fa-credit-card me-1"></i> Pay
-                                            </button>` : ''}
-                                    </div>
+                                    <a href="invoice_view.html?id=${inv.eventId}" class="btn-action btn-view text-decoration-none">View</a>
+                                    ${inv.status === 'UNPAID' ? `<button onclick="payNow(${inv.id}, ${inv.amount})" class="btn-action" style="background:#10b981">Pay Now</button>` : ''}
                                 </td>
                             </tr>`;
                     });
                 }
-                $('#invoiceTableBody').hide().html(rows).fadeIn(400);
-            },
-            error: function(err) {
-                console.error("AJAX Error:", err);
-                $('#invoiceTableBody').html('<tr><td colspan="6" class="text-center text-danger py-4">Error connecting to server. Check Console (F12).</td></tr>');
+                $('#invoiceTableBody').html(rows);
             }
         });
     }
 
-    function payNow(invoiceId, amount) {
-        localStorage.setItem('payingInvoiceId', invoiceId);
-        localStorage.setItem('payingAmount', amount);
-        window.location.href = 'payment.html';
-    }
-
-    function logout() {
-        if(confirm("Are you sure?")) {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        }
-    }
+    function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 </script>
 </body>
 </html>

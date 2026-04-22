@@ -1,54 +1,56 @@
-$(document).ready(function() {
-    const token = localStorage.getItem('token');
-    if (!token) { window.location.href = 'login.html'; return; }
+const EVENT_API = "http://localhost:8080/api/v1/events";
+const token = localStorage.getItem('token');
+const vEmail = localStorage.getItem('userEmail');
 
-    loadVendorTasks();
+$(document).ready(function() {
+    if (!token) { window.location.href = 'login.html'; return; }
+    loadVendorRequests();
 });
 
-function loadVendorTasks() {
-    const vendorEmail = localStorage.getItem('userEmail');
-
+function loadVendorRequests() {
     $.ajax({
-        url: `http://localhost:8080/api/v1/events/vendor-requests?email=${vendorEmail}`,
+        url: `${EVENT_API}/vendor-requests?email=${vEmail}`,
         method: "GET",
-        headers: { "Authorization": "Bearer " + localStorage.getItem('token') },
+        headers: { "Authorization": "Bearer " + token },
         success: function(events) {
             let rows = "";
             if (events.length === 0) {
-                rows = '<tr><td colspan="3" class="text-center text-muted">No pending requests</td></tr>';
+                rows = '<tr><td colspan="4" class="text-center py-4 text-muted">No pending job requests found.</td></tr>';
             } else {
                 events.forEach(event => {
                     rows += `
                     <tr>
-                        <td class="fw-bold">${event.type}</td>
+                        <td class="fw-bold">#${event.id}</td>
+                        <td>${event.type}</td>
                         <td>${event.date}</td>
-                        <td>
-                            <button class="btn btn-success btn-sm rounded-pill px-3" onclick="respondToRequest(${event.id}, 'CONFIRMED')">Accept</button>
-                            <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="respondToRequest(${event.id}, 'REJECTED')">Reject</button>
+                        <td class="text-center">
+                            <button class="btn btn-success btn-sm rounded-pill px-3" onclick="respondToJob(${event.id}, 'CONFIRMED')">Accept</button>
+                            <button class="btn btn-outline-danger btn-sm rounded-pill px-3 ms-1" onclick="respondToJob(${event.id}, 'REJECTED')">Reject</button>
                         </td>
                     </tr>`;
                 });
             }
-            $("#vendorTaskBody").html(rows);
+            $("#vendorRequestsBody").html(rows);
+            $("#reqCount").text(events.length + " New");
         },
         error: function() {
-            $("#vendorTaskBody").html('<tr><td colspan="3" class="text-center text-danger">Error loading tasks</td></tr>');
+            alert("Could not load vendor requests. Check backend connection.");
         }
     });
 }
 
-function respondToRequest(eventId, newStatus) {
-    if(!confirm(`Are you sure you want to ${newStatus.toLowerCase()} this request?`)) return;
+function respondToJob(id, status) {
+    if(!confirm(`Do you want to ${status.toLowerCase()} this job?`)) return;
 
     $.ajax({
-        url: `http://localhost:8080/api/v1/events/${eventId}/status?status=${newStatus}`,
+        url: `${EVENT_API}/${id}/status?status=${status}`,
         method: "PUT",
-        headers: { "Authorization": "Bearer " + localStorage.getItem('token') },
+        headers: { "Authorization": "Bearer " + token },
         success: function() {
-            alert("Response updated successfully!");
-            loadVendorTasks();
+            alert("Success! Status updated to " + status);
+            loadVendorRequests();
         },
-        error: function() { alert("Failed to update status."); }
+        error: function() { alert("Error updating status."); }
     });
 }
 

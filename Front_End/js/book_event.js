@@ -15,25 +15,24 @@ $(document).ready(function() {
         // localStorage එකේ තියෙන string ID එක integer එකක් කරනවා
         const currentUserId = parseInt(storedUserId);
 
-        // 2. Form එකේ දත්ත ලබා ගැනීම
+        // 2. Form එකේ දත්ත ලබා ගැනීම (Entity එකට ගැලපෙන ලෙස)
         const eventData = {
             title: $("#eventTitle").val(),
             type: $("#eventType").val(),
             date: $("#eventDate").val(),
-            description: $("#eventDesc").val() || $("#eventDescription").val() || "",
+            location: $("#eventLocation").val(),
+            description: $("#eventDesc").val() || "",
             status: "PENDING",
-            clientId: currentUserId // දැන් මෙතනට නිවැරදි අංකය යනවා
+            userId: currentUserId // Backend Entity එකේ තිබිය යුතු නම
         };
 
-        if (!eventData.title || !eventData.date) {
-            alert("Please fill in the Event Title and Date!");
+        if (!eventData.title || !eventData.date || !eventData.location) {
+            alert("Please fill in all the required fields!");
             return;
         }
 
-        console.log("Sending Event Data:", eventData);
-
         const submitBtn = $(this).find('button[type="submit"]');
-        submitBtn.prop('disabled', true).text('Processing...');
+        submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Processing...');
 
         // 3. Backend එකට AJAX Request එක යැවීම
         $.ajax({
@@ -53,8 +52,10 @@ $(document).ready(function() {
                 submitBtn.prop('disabled', false).text('Submit Booking Request');
 
                 let errorMsg = "Failed to book event.";
-                if (err.status === 500) {
-                    errorMsg = "Internal Server Error (500). The server couldn't link the event to User ID: " + currentUserId;
+                if (err.status === 403) {
+                    errorMsg = "Your session has expired or you do not have permission.";
+                } else if (err.status === 500) {
+                    errorMsg = "Internal Server Error. Please check if the User ID: " + currentUserId + " exists in DB.";
                 }
                 alert("Error: " + errorMsg);
             }
