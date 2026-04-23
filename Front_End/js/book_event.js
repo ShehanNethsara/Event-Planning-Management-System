@@ -2,39 +2,51 @@ $(document).ready(function() {
     const token = localStorage.getItem("token");
     const storedUserId = localStorage.getItem("userId");
 
-    // 1. පද්ධතියට ඇතුළු වී ඇත්දැයි පරීක්ෂා කිරීම
-    if (!token || !storedUserId || storedUserId === "undefined") {
-        alert("Session expired. Please login again.");
+    // 1. Session Guard
+    if (!token || !storedUserId || storedUserId === "undefined" || storedUserId === "0") {
+        alert("Please login to continue.");
         window.location.href = 'login.html';
         return;
     }
 
-    $("#bookEventForm").submit(function(e) {
+    // 2. Category Selection
+    let selectedCategory = "WEDDING";
+    $('.category-card').click(function() {
+        $('.category-card').removeClass('active border-primary shadow-lg');
+        $(this).addClass('active border-primary shadow-lg');
+        selectedCategory = $(this).data('category');
+    });
+
+    // 3. Form Submit Logic
+    $("#bookEventForm").off('submit').on('submit', function(e) {
         e.preventDefault();
 
-        // localStorage එකේ තියෙන string ID එක integer එකක් කරනවා
         const currentUserId = parseInt(storedUserId);
 
-        // 2. Form එකේ දත්ත ලබා ගැනීම (Entity එකට ගැලපෙන ලෙස)
+        // --- වැදගත්ම වෙනස: EventDTO එකේ නමට (clientId) ගැලපෙන ලෙස දත්ත සැකසීම ---
         const eventData = {
-            title: $("#eventTitle").val(),
-            type: $("#eventType").val(),
+            title: $("#eventTitle").val().trim(),
+            type: selectedCategory || "OTHER",
             date: $("#eventDate").val(),
-            location: $("#eventLocation").val(),
-            description: $("#eventDesc").val() || "",
+            location: $("#eventLocation").val() || $("#location").val(),
+            description: $("#eventDescription").val() || $("#eventDesc").val() || "",
             status: "PENDING",
-            userId: currentUserId // Backend Entity එකේ තිබිය යුතු නම
+            // මෙතන තමයි කලින් වැරදුනේ. DTO එකේ තියෙන්නේ clientId (Long).
+            clientId: currentUserId
         };
 
+        // Validation
         if (!eventData.title || !eventData.date || !eventData.location) {
-            alert("Please fill in all the required fields!");
+            alert("All mandatory fields (Title, Date, Location) are required.");
             return;
         }
 
         const submitBtn = $(this).find('button[type="submit"]');
         submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Processing...');
 
-        // 3. Backend එකට AJAX Request එක යැවීම
+        console.log("🚀 Payload matching EventDTO:", JSON.stringify(eventData));
+
+        // 4. AJAX Call
         $.ajax({
             url: "http://localhost:8080/api/v1/events/save",
             method: "POST",
@@ -44,20 +56,19 @@ $(document).ready(function() {
             },
             data: JSON.stringify(eventData),
             success: function(response) {
-                alert("Success! Your event request has been sent to Admin. 🚀");
+                console.log("✅ Success:", response);
+                alert("Success! Your event has been booked. 🚀");
                 window.location.href = "user_dashboard.html";
             },
             error: function(err) {
-                console.error("Booking Error:", err);
+                console.error("❌ Error Response:", err.responseText);
                 submitBtn.prop('disabled', false).text('Submit Booking Request');
 
-                let errorMsg = "Failed to book event.";
-                if (err.status === 403) {
-                    errorMsg = "Your session has expired or you do not have permission.";
-                } else if (err.status === 500) {
-                    errorMsg = "Internal Server Error. Please check if the User ID: " + currentUserId + " exists in DB.";
+                if (err.status === 400) {
+                    alert("Error 400: Bad Request. Check your DTO mapping or IntelliJ logs.");
+                } else {
+                    alert("Error: Check if User ID: " + currentUserId + " is valid in Database.");
                 }
-                alert("Error: " + errorMsg);
             }
         });
     });
