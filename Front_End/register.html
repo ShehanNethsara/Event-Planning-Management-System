@@ -1,225 +1,50 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join EventPro | Create Account</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
-            padding: 20px;
-        }
-
-        .main-container {
-            width: 100%;
-            max-width: 1100px;
-            min-height: 700px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-radius: 32px;
-            display: flex;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.3);
-        }
-
-        /* වම් පැත්තේ පින්තූරය සහ විස්තරය */
-        .info-side {
-            flex: 1.2;
-            background: linear-gradient(rgba(168, 85, 247, 0.4), rgba(236, 72, 153, 0.7)),
-            url('https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=1200&q=80');
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 60px;
-            color: white;
-        }
-
-        .info-side h2 {
-            font-weight: 800;
-            font-size: 2.8rem;
-            margin-bottom: 20px;
-            line-height: 1.1;
-        }
-
-        .info-side p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            margin-bottom: 30px;
-        }
-
-        .benefit-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            font-size: 0.95rem;
-        }
-
-        .benefit-item i {
-            width: 30px;
-            height: 30px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 12px;
-            font-size: 0.8rem;
-        }
-
-        /* දකුණු පැත්තේ Form එක */
-        .form-side {
-            flex: 1;
-            padding: 50px 60px;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .brand-logo {
-            font-weight: 800;
-            font-size: 1.8rem;
-            background: linear-gradient(90deg, #a855f7, #ec4899);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 30px;
-        }
-
-        .form-label {
-            font-weight: 600;
-            font-size: 0.8rem;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
-
-        .form-control, .form-select {
-            border-radius: 12px;
-            padding: 12px 18px;
-            border: 1.5px solid #f3f4f6;
-            background-color: #f9fafb;
-            transition: 0.3s;
-            margin-bottom: 15px;
-            font-size: 0.95rem;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: #ec4899;
-            background-color: #fff;
-            box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
-        }
-
-        .btn-register {
-            background: linear-gradient(90deg, #a855f7, #ec4899);
-            border: none;
-            border-radius: 12px;
-            padding: 15px;
-            font-weight: 700;
-            color: white;
-            width: 100%;
-            transition: 0.3s;
-            box-shadow: 0 10px 20px rgba(236, 72, 153, 0.3);
-            margin-top: 10px;
-        }
-
-        .btn-register:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(236, 72, 153, 0.4);
-            opacity: 0.95;
-        }
-
-        .login-link {
-            text-align: center;
-            margin-top: 25px;
-            font-size: 0.9rem;
-            color: #6b7280;
-        }
-
-        .login-link a {
-            color: #ec4899;
-            font-weight: 700;
-            text-decoration: none;
-        }
-
-        @media (max-width: 992px) {
-            .info-side { display: none; }
-            .main-container { max-width: 450px; height: auto; }
-            .form-side { border-radius: 32px; padding: 40px; }
-        }
-    </style>
-</head>
-<body>
-
-<div class="main-container">
-    <div class="info-side">
-        <h2>Join the Elite <br>Network.</h2>
-        <p>Start creating magical moments with the world's most advanced event management suite.</p>
-
-        <div class="benefit-list">
-            <div class="benefit-item"><i class="fas fa-magic"></i> Access Premium Vendor Network</div>
-            <div class="benefit-item"><i class="fas fa-chart-pie"></i> Advanced Budget Tracking</div>
-            <div class="benefit-item"><i class="fas fa-shield-alt"></i> Secure Payment Processing</div>
-        </div>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Register — EventPro</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></head><body>
+<div class="auth-page">
+  <div class="auth-vis">
+    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1200&auto=format&fit=crop" alt="Event">
+    <div class="auth-vis-ov">
+      <div class="auth-quote">"The finest events are born from the finest planning."</div>
+      <div style="font-size:.75rem;color:rgba(255,255,255,.45);margin-top:10px;">— EventPro</div>
     </div>
-
-    <div class="form-side">
-        <div class="brand-logo">EventPro.</div>
-
-        <h4 class="fw-bold text-dark mb-1">Create Account</h4>
-        <p class="text-muted small mb-4">It only takes a minute to get started.</p>
-
-        <form id="regForm">
-            <div class="mb-1">
-                <label class="form-label">Full Name</label>
-                <input type="text" id="regName" class="form-control" placeholder="Shehan Nethsara" required>
-            </div>
-
-            <div class="mb-1">
-                <label class="form-label">Email Address</label>
-                <input type="email" id="regEmail" class="form-control" placeholder="name@domain.com" required>
-            </div>
-
-            <div class="mb-1">
-                <label class="form-label">Password</label>
-                <input type="password" id="regPassword" class="form-control" placeholder="••••••••" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">I want to register as</label>
-                <select id="regRole" class="form-select">
-                    <option value="CLIENT">Client (Planning an Event)</option>
-                    <option value="STAFF">Staff (Event Coordinator)</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-register">
-                <i class="fas fa-user-plus me-2"></i> Create My Account
-            </button>
-        </form>
-
-        <div class="login-link">
-            Already have an account? <a href="login.html">Login here</a>
-        </div>
+  </div>
+  <div class="auth-panel">
+    <div class="auth-inner">
+      <div class="auth-logo">EventPro</div>
+      <p class="auth-sub">Create your account and start planning today.</p>
+      <div id="err" style="display:none;background:rgba(240,96,96,.1);border:1px solid rgba(240,96,96,.22);border-radius:8px;padding:11px 14px;font-size:.83rem;color:var(--red);margin-bottom:15px;"></div>
+      <div id="ok" style="display:none;background:rgba(34,201,139,.1);border:1px solid rgba(34,201,139,.22);border-radius:8px;padding:11px 14px;font-size:.83rem;color:var(--green);margin-bottom:15px;"></div>
+      <div class="fg"><label class="fl">Full Name</label><input type="text" id="name" class="fc" placeholder="Your full name"></div>
+      <div class="fg"><label class="fl">Email Address</label><input type="email" id="email" class="fc" placeholder="your@email.com"></div>
+      <div class="fg"><label class="fl">Password</label><input type="password" id="pwd" class="fc" placeholder="Minimum 6 characters"></div>
+      <div class="fg"><label class="fl">Account Type</label>
+        <select id="role" class="fc">
+          <option value="CLIENT">Client — I want to book events</option>
+          <option value="STAFF">Vendor — I provide services</option>
+        </select>
+      </div>
+      <button class="btn btn-gold w100 btn-lg" id="rbtn" onclick="doReg()"><i class="fas fa-user-plus"></i> Create Account</button>
+      <p style="font-size:.83rem;color:var(--text3);text-align:center;margin-top:20px;">Already have an account? <a href="login.html" style="color:var(--gold);">Sign in</a></p>
     </div>
+  </div>
 </div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="js/auth.js"></script>
-
-</body>
-</html>
+<div id="toast-cnt"></div>
+<script src="js/app.js"></script>
+<script>
+async function doReg(){
+  const name=document.getElementById('name').value.trim(),email=document.getElementById('email').value.trim(),pwd=document.getElementById('pwd').value,role=document.getElementById('role').value;
+  const btn=document.getElementById('rbtn'),err=document.getElementById('err'),ok=document.getElementById('ok');
+  err.style.display='none';ok.style.display='none';
+  if(!name||!email||!pwd){err.textContent='Please fill all fields.';err.style.display='block';return;}
+  if(pwd.length<6){err.textContent='Password must be at least 6 characters.';err.style.display='block';return;}
+  btn.disabled=true;btn.innerHTML='<div class="sp"></div> Creating...';
+  try{
+    await api('POST','/auth/register',{name,email,password:pwd,role});
+    ok.textContent='Account created successfully! Redirecting to login...';ok.style.display='block';
+    toast('Welcome to EventPro!','success');
+    setTimeout(()=>location.href='login.html',1500);
+  }catch(e){
+    err.textContent=e.message||'Registration failed. Please try again.';err.style.display='block';
+    btn.disabled=false;btn.innerHTML='<i class="fas fa-user-plus"></i> Create Account';
+  }
+}
+</script></body></html>

@@ -37,7 +37,6 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventDTO createEvent(EventDTO dto) {
-        // 1. Client ව පරීක්ෂා කිරීම (Hardcoded ID 22 වැළැක්වීමට මෙය ඉතා වැදගත්)
         if (dto.getClientId() == null) {
             throw new RuntimeException("Client ID is missing in the request!");
         }
@@ -47,7 +46,6 @@ public class EventServiceImpl implements EventService {
 
         System.out.println("DEBUG: Creating event for User: " + client.getEmail() + " (ID: " + client.getId() + ")");
 
-        // 2. Event එක සේව් කිරීම (Manual Mapping - වඩාත් ආරක්ෂිතයි)
         Event event = new Event();
         event.setTitle(dto.getTitle());
         event.setType(dto.getType());
@@ -55,11 +53,10 @@ public class EventServiceImpl implements EventService {
         event.setLocation(dto.getLocation());
         event.setDescription(dto.getDescription());
         event.setStatus("PENDING");
-        event.setClient(client); // මෙතනට වැටෙන්නේ Frontend එකෙන් එවපු ID එකට අදාළ User වයි.
+        event.setClient(client);
 
         Event savedEvent = eventRepository.save(event);
 
-        // 3. Invoice එකක් Auto-generate කිරීම
         try {
             Invoice invoice = new Invoice();
             invoice.setEvent(savedEvent);
@@ -73,7 +70,6 @@ public class EventServiceImpl implements EventService {
             System.err.println("CRITICAL ERROR: Failed to generate invoice: " + e.getMessage());
         }
 
-        // 4. Response එක සකස් කිරීම
         EventDTO responseDTO = modelMapper.map(savedEvent, EventDTO.class);
         responseDTO.setClientId(client.getId());
         return responseDTO;
@@ -133,29 +129,23 @@ public class EventServiceImpl implements EventService {
         eventRepository.deleteById(id);
     }
 
-    // EventServiceImpl.java ඇතුළත @Override එකක් ලෙස මෙය ලියන්න
 
     @Override
     public EventDTO assignVendorAndStatus(Long id, Long vendorId, String status) {
-        // 1. අදාළ Event එක හොයාගන්නවා
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Event not found with ID: " + id));
 
         Vendor vendor = vendorRepository.findById(vendorId)
                 .orElseThrow(() -> new RuntimeException("Vendor not found with ID: " + vendorId));
 
-        // 3. Event එකට Vendor ව සහ Status එක 'APPROVED' ලෙස set කරනවා
         event.setVendor(vendor);
         event.setStatus(status);
 
-        // 4. Save කරලා ආපහු DTO එකක් විදිහට පද්ධතියට දෙනවා
         Event savedEvent = eventRepository.save(event);
         return modelMapper.map(savedEvent, EventDTO.class);
     }
-    // EventServiceImpl.java ඇතුළත
     @Override
     public List<EventDTO> getRequestsByVendorEmail(String email) {
-        // Repository එකෙන් email එක සහ status එක REQUESTED වන ඒව හොයන්න
         List<Event> events = eventRepository.findByVendorEmailAndStatus(email, "REQUESTED");
         return events.stream()
                 .map(e -> modelMapper.map(e, EventDTO.class))

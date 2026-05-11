@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vendors — EventPro</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></head><body>
+<div class="df" style="min-height:100vh;">
+<aside class="sb">
+  <div class="sb-logo"><div class="logo">EventPro</div><div class="sub">Admin Control</div></div>
+  <nav class="sb-nav"><ul>
+    <li><a class="sb-link" href="adminDashboard.html"><i class="fas fa-th-large"></i> Overview</a></li>
+    <li><a class="sb-link" href="adminDashboard.html"><i class="fas fa-calendar-alt"></i> Events</a></li>
+    <li><a class="sb-link active"><i class="fas fa-store"></i> Vendors</a></li>
+    <li><a class="sb-link" href="adminDashboard.html"><i class="fas fa-credit-card"></i> Payments</a></li>
+    <li><a class="sb-link" href="adminDashboard.html"><i class="fas fa-file-invoice"></i> Invoices</a></li>
+  </ul></nav>
+  <div class="sb-foot"><div class="sb-user">
+    <div class="sb-av" id="sb-av">A</div>
+    <div><div class="sb-uname" id="sb-nm">Admin</div><div class="sb-urole">Administrator</div></div>
+    <button class="sb-logout" onclick="Auth.logout()"><i class="fas fa-sign-out-alt"></i></button>
+  </div></div>
+</aside>
+<div class="main" style="flex:1;">
+  <div class="topbar"><div><div class="pg-title">Vendor Management</div><div class="pg-sub">Add and manage your service vendors</div></div><button class="btn btn-gold" onclick="openModal('add-v-modal')"><i class="fas fa-plus"></i> Add Vendor</button></div>
+  <div class="area">
+    <div id="v-grid" class="g g3"><div class="load-st" style="grid-column:1/-1;"><div class="sp"></div></div></div>
+  </div>
+</div></div>
+
+<div class="modal-ov" id="add-v-modal">
+  <div class="modal-box">
+    <div class="modal-hd"><div class="modal-title">Add New Vendor</div><button class="modal-x" onclick="closeModal('add-v-modal')"><i class="fas fa-times"></i></button></div>
+    <div class="modal-bd">
+      <div class="fg"><label class="fl">Vendor Name</label><input type="text" id="v-name" class="fc" placeholder="e.g. Golden Moments Photography"></div>
+      <div class="fg"><label class="fl">Service Type</label><select id="v-type" class="fc"><option value="PHOTOGRAPHY">Photography</option><option value="CATERING">Catering</option><option value="DECORATION">Decoration</option><option value="MUSIC">Music & DJ</option><option value="VENUE">Venue</option><option value="TRANSPORT">Transport</option><option value="OTHER">Other</option></select></div>
+      <div class="fg"><label class="fl">Contact</label><input type="text" id="v-contact" class="fc" placeholder="Phone or email"></div>
+      <div class="fg"><label class="fl">Starting Price (LKR)</label><input type="number" id="v-price" class="fc" placeholder="e.g. 75000"></div>
+      <div class="fg"><label class="fl">Description</label><textarea id="v-desc" class="fc" rows="2" placeholder="Brief description of services..."></textarea></div>
+    </div>
+    <div class="modal-ft"><button class="btn btn-outline" onclick="closeModal('add-v-modal')">Cancel</button><button class="btn btn-gold" onclick="addVendor()"><i class="fas fa-plus"></i> Add Vendor</button></div>
+  </div>
+</div>
+<div id="toast-cnt"></div>
+<script src="js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  if(!Auth.guard('ADMIN'))return;
+  const n=Auth.name();document.getElementById('sb-nm').textContent=n;document.getElementById('sb-av').textContent=n.charAt(0);
+  loadVendors();
+});
+async function loadVendors(){
+  const g=document.getElementById('v-grid');
+  try{
+    const vs=await api('GET','/vendors/all');
+    if(!vs.length){g.innerHTML='<div style="grid-column:1/-1"><div class="empty-st"><i class="fas fa-store"></i><h4>No Vendors Yet</h4><p>Add your first vendor</p></div></div>';return;}
+    g.innerHTML=vs.map(v=>`<div class="ev-card">
+      <img src="${vImg(v.type)}" alt="${v.type}" loading="lazy">
+      <div class="ev-bd">
+        <div class="df jb ac mb8"><div class="ev-title">${v.name}</div><span class="badge b-confirmed">${v.type}</span></div>
+        <div class="ev-meta"><i class="fas fa-phone"></i> ${v.contact||'—'}</div>
+        <div class="ev-meta"><i class="fas fa-tag"></i> From ${fLKR(v.priceRange||0)}</div>
+        <div class="ev-meta" style="margin-top:4px;">${v.description||'No description.'}</div>
+        <div class="mt16"><button class="btn btn-red btn-sm" onclick="delVendor(${v.id})"><i class="fas fa-trash"></i> Remove</button></div>
+      </div>
+    </div>`).join('');
+  }catch(e){g.innerHTML=`<div style="grid-column:1/-1"><div class="empty-st"><i class="fas fa-exclamation-circle"></i><h4>${e.message}</h4></div></div>`;}
+}
+async function addVendor(){
+  const nm=document.getElementById('v-name').value.trim(),tp=document.getElementById('v-type').value,ct=document.getElementById('v-contact').value.trim(),pr=document.getElementById('v-price').value,ds=document.getElementById('v-desc').value.trim();
+  if(!nm||!ct){toast('Fill all required fields.','error');return;}
+  try{await api('POST','/vendors/add',{name:nm,type:tp,contact:ct,priceRange:parseFloat(pr)||0,description:ds});toast('Vendor added!','success');closeModal('add-v-modal');document.getElementById('v-name').value='';document.getElementById('v-contact').value='';document.getElementById('v-price').value='';document.getElementById('v-desc').value='';loadVendors();}
+  catch(e){toast(e.message,'error');}
+}
+async function delVendor(id){if(!confirm('Remove vendor?'))return;try{await api('DELETE',`/vendors/${id}`);toast('Removed.','info');loadVendors();}catch(e){toast(e.message,'error');}}
+</script></body></html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Invoice — EventPro</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>.inv-wrap{max-width:760px;margin:0 auto;}.inv-parties{display:grid;grid-template-columns:1fr 1fr;gap:36px;margin-bottom:28px;}.pl{font-size:.67rem;text-transform:uppercase;letter-spacing:.12em;color:#999;margin-bottom:7px;}.pn{font-size:.97rem;font-weight:700;margin-bottom:2px;color:#111;}.ps{font-size:.81rem;color:#666;}.inv-tots{display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding-top:14px;border-top:2px solid #e8d5a3;}.tot-row{display:flex;gap:38px;font-size:.86rem;}.tot-lbl{color:#777;min-width:110px;text-align:right;}.tot-val{font-weight:600;min-width:95px;text-align:right;}.grand{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:#9a7a2e;}.inv-footer2{background:#f9f5ee;padding:22px 44px;display:flex;justify-content:space-between;align-items:center;border-top:2px solid #e8d5a3;}@media print{.no-print{display:none!important;}.main{margin-left:0!important;}}</style>
+</head><body>
+<div class="df" style="min-height:100vh;">
+<aside class="sb no-print">
+  <div class="sb-logo"><div class="logo">EventPro</div><div class="sub">Invoice</div></div>
+  <nav class="sb-nav"><ul>
+    <li><a class="sb-link" href="userDashboard.html"><i class="fas fa-arrow-left"></i> Back to Dashboard</a></li>
+    <li><a class="sb-link" href="myInvoices.html"><i class="fas fa-file-invoice"></i> All Invoices</a></li>
+  </ul></nav>
+  <div class="sb-foot"><div class="sb-user">
+    <div class="sb-av" data-uav>U</div>
+    <div><div class="sb-uname" data-uname>User</div><div class="sb-urole" data-urole>CLIENT</div></div>
+    <button class="sb-logout" onclick="Auth.logout()"><i class="fas fa-sign-out-alt"></i></button>
+  </div></div>
+</aside>
+<div class="main" style="flex:1;">
+  <div class="topbar no-print">
+    <div><div class="pg-title">Invoice</div><div class="pg-sub">View and download your invoice</div></div>
+    <div class="df g12">
+      <button class="btn btn-outline" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+      <button class="btn btn-gold" onclick="window.print()"><i class="fas fa-download"></i> Download PDF</button>
+      <a href="myInvoices.html" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+  </div>
+  <div class="area">
+    <div class="inv-wrap">
+      <div id="inv-load" class="load-st"><div class="sp"></div><span>Loading invoice...</span></div>
+      <div id="inv-doc" class="inv-doc" style="display:none;box-shadow:0 8px 48px rgba(0,0,0,.5);"></div>
+      <div id="inv-act" class="df jb mt22 no-print" style="display:none!important;"></div>
+    </div>
+  </div>
+</div></div>
+<div id="toast-cnt"></div>
+<script src="js/app.js"></script>
+<script>
+let invData=null;
+document.addEventListener('DOMContentLoaded',()=>{if(!Auth.guard())return;fillUser();loadInvoice();});
+async function loadInvoice(){
+  const id=localStorage.getItem('viewInvoiceId');
+  if(!id){document.getElementById('inv-load').innerHTML='<div class="empty-st"><i class="fas fa-exclamation-circle"></i><h4>No invoice selected</h4><p><a href="myInvoices.html" style="color:var(--gold);">View all invoices</a></p></div>';return;}
+  try{invData=await api('GET',`/invoices/${id}`);}
+  catch(e){invData={id,amount:parseFloat(localStorage.getItem('payingAmount')||0),eventTitle:'Event Service',status:'UNPAID',clientEmail:Auth.email(),clientName:Auth.name()};}
+  renderInv(invData);
+}
+function renderInv(inv){
+  document.getElementById('inv-load').style.display='none';
+  const doc=document.getElementById('inv-doc');doc.style.display='block';
+  const paid=inv.status==='PAID',total=inv.amount||0;
+  doc.innerHTML=`
+    <div class="inv-top">
+      <div><div class="inv-brand">EventPro</div><div style="font-size:.63rem;color:rgba(201,168,76,.55);letter-spacing:.15em;text-transform:uppercase;margin-top:2px;">Premium Event Management</div>
+        <div style="margin-top:18px;font-size:.78rem;color:rgba(255,255,255,.4);line-height:1.6;">No. 45, Galle Road, Colombo 03<br>info@eventpro.lk · +94 11 234 5678</div></div>
+      <div style="text-align:right;color:white;">
+        <div style="font-size:.67rem;opacity:.5;text-transform:uppercase;letter-spacing:.1em;">Invoice</div>
+        <div style="font-size:1.3rem;font-weight:600;color:var(--gold);">#INV-${inv.id}</div>
+        <div style="margin-top:14px;font-size:.76rem;color:rgba(255,255,255,.4);line-height:1.7;"><div>Issued: ${fDate(new Date().toISOString())}</div><div>Due: ${fDate(inv.dueDate)||'On Completion'}</div></div>
+      </div>
+    </div>
+    <div class="inv-body">
+      <div class="inv-parties">
+        <div><div class="pl">Billed To</div><div class="pn">${inv.clientName||Auth.name()}</div><div class="ps">${inv.clientEmail||Auth.email()}</div></div>
+        <div><div class="pl">Event Details</div><div class="pn">${inv.eventTitle||'Event Service'}</div><div class="ps">Booking #${inv.eventId||inv.id}</div></div>
+      </div>
+      <table class="inv-tbl">
+        <thead><tr><th>Description</th><th>Qty</th><th>Unit Price</th><th style="text-align:right;">Total</th></tr></thead>
+        <tbody>
+          <tr><td>${inv.eventTitle||'Event Planning & Management Service'}</td><td>1</td><td>${fLKR(total)}</td><td style="text-align:right;">${fLKR(total)}</td></tr>
+          ${inv.notes?`<tr><td colspan="4" style="color:#888;font-size:.8rem;padding-top:6px;font-style:italic;">${inv.notes}</td></tr>`:''}
+        </tbody>
+      </table>
+      <div class="inv-tots">
+        <div class="tot-row"><div class="tot-lbl">Subtotal</div><div class="tot-val">${fLKR(total)}</div></div>
+        <div class="tot-row"><div class="tot-lbl">Tax (0%)</div><div class="tot-val">LKR 0.00</div></div>
+        <div class="tot-row" style="padding-top:8px;border-top:1px solid #e8d5a3;margin-top:4px;"><div class="tot-lbl grand">Total Due</div><div class="tot-val grand">${fLKR(total)}</div></div>
+      </div>
+    </div>
+    <div class="inv-footer2">
+      <div style="font-size:.76rem;color:#888;">Payment due by ${fDate(inv.dueDate)||'Completion'}<br>Thank you for choosing EventPro!</div>
+      <div class="${paid?'':''}"><span class="${paid?'stamp-paid':'stamp-unpaid'}">${paid?'✓ PAID':'UNPAID'}</span></div>
+    </div>`;
+  if(!paid){const a=document.getElementById('inv-act');a.style.display='flex';a.innerHTML=`<div></div><button class="btn btn-gold btn-lg" onclick="payNow(${inv.id},${total})"><i class="fas fa-credit-card"></i> Pay ${fLKR(total)}</button>`;}
+}
+function payNow(id,amt){localStorage.setItem('payingInvoiceId',id);localStorage.setItem('payingAmount',amt);location.href='payment.html';}
+</script></body></html>

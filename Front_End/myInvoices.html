@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My Invoices — EventPro</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></head><body>
+<div class="df" style="min-height:100vh;">
+<aside class="sb">
+  <div class="sb-logo"><div class="logo">EventPro</div><div class="sub">Client Portal</div></div>
+  <nav class="sb-nav"><ul>
+    <li><a class="sb-link" href="userDashboard.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+    <li><a class="sb-link" href="bookEvent.html"><i class="fas fa-calendar-plus"></i> Book Event</a></li>
+    <li><a class="sb-link active" href="myInvoices.html"><i class="fas fa-file-invoice"></i> My Invoices</a></li>
+    <li><a class="sb-link" href="payment.html"><i class="fas fa-credit-card"></i> Payments</a></li>
+  </ul></nav>
+  <div class="sb-foot"><div class="sb-user">
+    <div class="sb-av" data-uav>U</div>
+    <div><div class="sb-uname" data-uname>User</div><div class="sb-urole" data-urole>CLIENT</div></div>
+    <button class="sb-logout" onclick="Auth.logout()"><i class="fas fa-sign-out-alt"></i></button>
+  </div></div>
+</aside>
+<div class="main" style="flex:1;">
+  <div class="topbar"><div><div class="pg-title">My Invoices</div><div class="pg-sub">View and pay your event invoices</div></div></div>
+  <div class="area">
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Invoice #</th><th>Event</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="inv-tb"><tr><td colspan="6"><div class="load-st"><div class="sp"></div><span>Loading...</span></div></td></tr></tbody></table>
+    </div>
+  </div>
+</div></div>
+<div id="toast-cnt"></div>
+<script src="js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{if(!Auth.guard())return;fillUser();loadInvoices();});
+async function loadInvoices(){
+  const tb=document.getElementById('inv-tb');
+  try{
+    const invs=await api('GET',`/invoices/client?email=${Auth.email()}`);
+    if(!invs.length){tb.innerHTML='<tr><td colspan="6"><div class="empty-st"><i class="fas fa-file-invoice"></i><h4>No Invoices Yet</h4><p>Invoices appear after your events are approved</p></div></td></tr>';return;}
+    tb.innerHTML=invs.map(inv=>`<tr>
+      <td><span class="gold bold">#INV-${inv.id}</span></td>
+      <td>${inv.eventTitle||'—'}</td>
+      <td><strong>${fLKR(inv.amount)}</strong></td>
+      <td>${fDate(inv.dueDate)}</td>
+      <td>${badge(inv.status==='PAID'?'PAID':'UNPAID')}</td>
+      <td><div class="df g8">
+        ${inv.status!=='PAID'?`<button class="btn btn-gold btn-sm" onclick="payNow(${inv.id},${inv.amount})"><i class="fas fa-credit-card"></i> Pay Now</button>`:`<span class="badge b-paid"><i class="fas fa-check-circle"></i> &nbsp;Paid</span>`}
+        <button class="btn btn-outline btn-sm" onclick="viewInv(${inv.id})"><i class="fas fa-eye"></i> View</button>
+      </div></td>
+    </tr>`).join('');
+  }catch(e){tb.innerHTML=`<tr><td colspan="6"><div class="empty-st"><i class="fas fa-exclamation-circle"></i><h4>Error loading invoices</h4><p>${e.message}</p></div></td></tr>`;}
+}
+function payNow(id,amt){localStorage.setItem('payingInvoiceId',id);localStorage.setItem('payingAmount',amt);location.href='payment.html';}
+function viewInv(id){localStorage.setItem('viewInvoiceId',id);location.href='invoiceView.html';}
+</script></body></html>

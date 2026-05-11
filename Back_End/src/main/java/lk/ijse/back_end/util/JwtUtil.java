@@ -13,7 +13,6 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    // මම මේ ලබා දී ඇත්තේ අකුරු 64 ක ආරක්ෂිත Key එකකි. මෙය වෙනස් නොකර භාවිතා කරන්න.
     private String secret = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
 
     public String extractUsername(String token) {
@@ -47,7 +46,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
+                .setExpiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 30)) // 30 days
                 .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
     }
@@ -62,7 +61,11 @@ public class JwtUtil {
     }
 
     private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        try {
+            return extractExpiration(token).before(new Date());
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     public Date extractExpiration(String token) {

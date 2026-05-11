@@ -11,6 +11,7 @@ public class VendorDTO {
     private Long id;
     private String name;
     private String type;
+    private String contact;
     private String description;
     private Double priceRange;
 }

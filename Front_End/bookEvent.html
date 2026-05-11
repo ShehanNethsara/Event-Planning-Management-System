@@ -1,0 +1,121 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Book Event — EventPro</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></head><body>
+<div class="df" style="min-height:100vh;">
+<aside class="sb">
+  <div class="sb-logo"><div class="logo">EventPro</div><div class="sub">Client Portal</div></div>
+  <nav class="sb-nav"><ul>
+    <li><a class="sb-link" href="userDashboard.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+    <li><a class="sb-link active" href="bookEvent.html"><i class="fas fa-calendar-plus"></i> Book Event</a></li>
+    <li><a class="sb-link" href="myInvoices.html"><i class="fas fa-file-invoice"></i> My Invoices</a></li>
+    <li><a class="sb-link" href="payment.html"><i class="fas fa-credit-card"></i> Payments</a></li>
+  </ul></nav>
+  <div class="sb-foot"><div class="sb-user">
+    <div class="sb-av" data-uav>U</div>
+    <div><div class="sb-uname" data-uname>User</div><div class="sb-urole" data-urole>CLIENT</div></div>
+    <button class="sb-logout" onclick="Auth.logout()"><i class="fas fa-sign-out-alt"></i></button>
+  </div></div>
+</aside>
+<div class="main" style="flex:1;">
+  <div class="topbar"><div><div class="pg-title">Book an Event</div><div class="pg-sub">Three simple steps to your perfect occasion</div></div></div>
+  <div class="area">
+    <div style="max-width:740px;margin:0 auto;">
+      <!-- Steps -->
+      <div class="steps">
+        <div class="step-item active" id="si1"><div class="step-num">1</div><span>Category</span></div>
+        <div class="step-line"></div>
+        <div class="step-item idle" id="si2"><div class="step-num">2</div><span>Details</span></div>
+        <div class="step-line"></div>
+        <div class="step-item idle" id="si3"><div class="step-num">3</div><span>Confirm</span></div>
+      </div>
+
+      <!-- Step 1 -->
+      <div id="s1">
+        <div style="font-family:var(--ff);font-size:1.3rem;font-weight:600;margin-bottom:18px;">What type of event?</div>
+        <div class="g g3" id="cat-grid">
+          <div class="load-st" style="grid-column:1/-1;"><div class="sp"></div></div>
+        </div>
+        <div class="df je mt24"><button class="btn btn-gold btn-lg" onclick="goStep(2)"><i class="fas fa-arrow-right"></i> Continue</button></div>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="s2" style="display:none;">
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Event Details</div></div>
+          <div class="card-bd">
+            <div class="g g2">
+              <div class="fg"><label class="fl">Event Title</label><input type="text" id="ev-title" class="fc" placeholder="e.g. Sarah & John's Wedding"></div>
+              <div class="fg"><label class="fl">Category</label><input type="text" id="ev-type" class="fc" readonly style="color:var(--gold);cursor:not-allowed;"></div>
+              <div class="fg"><label class="fl">Event Date</label><input type="date" id="ev-date" class="fc"></div>
+              <div class="fg"><label class="fl">Number of Guests</label><input type="number" id="ev-guests" class="fc" placeholder="e.g. 150" min="1"></div>
+              <div class="fg" style="grid-column:1/-1;"><label class="fl">Venue / Location</label><input type="text" id="ev-loc" class="fc" placeholder="e.g. Grand Ballroom, Colombo 03"></div>
+              <div class="fg" style="grid-column:1/-1;"><label class="fl">Special Requirements</label><textarea id="ev-notes" class="fc" rows="3" placeholder="Any special requests, theme preferences or additional notes..."></textarea></div>
+            </div>
+            <div class="df jb mt8">
+              <button class="btn btn-outline" onclick="goStep(1)"><i class="fas fa-arrow-left"></i> Back</button>
+              <button class="btn btn-gold btn-lg" onclick="goStep(3)"><i class="fas fa-arrow-right"></i> Review Booking</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div id="s3" style="display:none;">
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Confirm Your Booking</div><span class="badge b-pending">Awaiting Review</span></div>
+          <div class="card-bd">
+            <div id="summary" style="background:var(--bg2);border-radius:10px;padding:18px;margin-bottom:18px;"></div>
+            <div style="background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.18);border-radius:9px;padding:12px 16px;margin-bottom:18px;font-size:.83rem;color:var(--text3);">
+              <i class="fas fa-info-circle" style="color:var(--gold);margin-right:7px;"></i>Our team will review your booking and assign a vendor. You'll receive an invoice once confirmed.
+            </div>
+            <div class="df jb">
+              <button class="btn btn-outline" onclick="goStep(2)"><i class="fas fa-arrow-left"></i> Edit</button>
+              <button class="btn btn-gold btn-lg" id="sub-btn" onclick="submitBooking()"><i class="fas fa-check"></i> Confirm Booking</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div id="toast-cnt"></div>
+<script src="js/app.js"></script>
+<script>
+const CATS=[
+  {n:'WEDDING',l:'Wedding',s:'Marriage ceremonies & receptions',img:'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=600&auto=format&fit=crop'},
+  {n:'BIRTHDAY',l:'Birthday',s:'Parties & celebrations',img:'https://images.unsplash.com/photo-1530103043960-ef38714abb15?q=80&w=600&auto=format&fit=crop'},
+  {n:'CORPORATE',l:'Corporate',s:'Business events & conferences',img:'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=600&auto=format&fit=crop'},
+  {n:'CONCERT',l:'Concert',s:'Music & live performances',img:'https://images.unsplash.com/photo-1459749411177-042180ce6742?q=80&w=600&auto=format&fit=crop'},
+  {n:'GRADUATION',l:'Graduation',s:'Academic achievement ceremonies',img:'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=600&auto=format&fit=crop'},
+  {n:'GALA',l:'Gala Dinner',s:'Formal dinners & charity events',img:'https://images.unsplash.com/photo-1478147427282-58a87a120781?q=80&w=600&auto=format&fit=crop'},
+];
+let sel=null;
+document.addEventListener('DOMContentLoaded',()=>{
+  if(!Auth.guard())return;fillUser();
+  const mn=new Date();mn.setDate(mn.getDate()+1);document.getElementById('ev-date').min=mn.toISOString().split('T')[0];
+  document.getElementById('cat-grid').innerHTML=CATS.map(c=>`
+    <div class="cat-card" id="cat-${c.n}" onclick="selCat('${c.n}','${c.l}')">
+      <img src="${c.img}" alt="${c.l}" loading="lazy">
+      <div class="cat-ov"><div class="cat-name">${c.l}</div><div class="cat-sub">${c.s}</div></div>
+      <div class="cat-chk"><i class="fas fa-check"></i></div>
+    </div>`).join('');
+});
+function selCat(n,l){sel=n;document.querySelectorAll('.cat-card').forEach(c=>c.classList.remove('sel'));document.getElementById('cat-'+n).classList.add('sel');document.getElementById('ev-type').value=l;}
+function goStep(n){
+  if(n===2&&!sel){toast('Please select a category first.','error');return;}
+  if(n===3){
+    const t=document.getElementById('ev-title').value.trim(),d=document.getElementById('ev-date').value,l=document.getElementById('ev-loc').value.trim();
+    if(!t||!d||!l){toast('Please fill in all required fields.','error');return;}
+    document.getElementById('summary').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">${row('Event Title',t)}${row('Category',sel)}${row('Date',fDate(d))}${row('Guests',document.getElementById('ev-guests').value||'TBD')}${row('Location',l)}${row('Notes',document.getElementById('ev-notes').value||'—')}</div>`;
+  }
+  [1,2,3].forEach(i=>{document.getElementById('s'+i).style.display=i===n?'block':'none';});
+  ['si1','si2','si3'].forEach((id,i)=>{const el=document.getElementById(id),num=el.querySelector('.step-num');if(i+1<n){el.className='step-item done';num.style.background='var(--green)';num.style.color='#fff';}else if(i+1===n){el.className='step-item active';num.style.background='var(--gold)';num.style.color='var(--bg)';}else{el.className='step-item idle';num.style.background='var(--bg3)';num.style.color='var(--text3)';}});
+}
+function row(l,v){return`<div><div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:3px;">${l}</div><div style="font-weight:500;font-size:.86rem;">${v}</div></div>`;}
+async function submitBooking(){
+  const btn=document.getElementById('sub-btn');btn.disabled=true;btn.innerHTML='<div class="sp"></div> Submitting...';
+  try{
+    await api('POST','/events/save',{title:document.getElementById('ev-title').value.trim(),type:sel,date:document.getElementById('ev-date').value,location:document.getElementById('ev-loc').value.trim(),guests:parseInt(document.getElementById('ev-guests').value)||0,notes:document.getElementById('ev-notes').value.trim(),clientEmail:Auth.email(),status:'PENDING'});
+    toast('Booking submitted successfully!','success');
+    setTimeout(()=>location.href='userDashboard.html',1200);
+  }catch(e){toast(e.message,'error');btn.disabled=false;btn.innerHTML='<i class="fas fa-check"></i> Confirm Booking';}
+}
+</script></body></html>

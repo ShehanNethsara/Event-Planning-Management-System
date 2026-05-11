@@ -1,311 +1,246 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard | EventPro Intelligence</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <style>
-    :root {
-      --bg-dark: #0f172a;
-      --sidebar-bg: rgba(15, 23, 42, 0.95);
-      --card-bg: rgba(30, 41, 59, 0.7);
-      --neon-blue: #6366f1;
-      --neon-purple: #a855f7;
-      --text-muted: #94a3b8;
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: var(--bg-dark);
-      color: white;
-      margin: 0;
-      overflow-x: hidden;
-    }
-
-    /* --- Sidebar Styling --- */
-    .sidebar {
-      width: 280px;
-      background: var(--sidebar-bg);
-      backdrop-filter: blur(20px);
-      border-right: 1px solid rgba(255, 255, 255, 0.05);
-      z-index: 1000;
-      padding-top: 30px;
-    }
-
-    .brand-logo {
-      font-weight: 800;
-      font-size: 1.6rem;
-      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 40px;
-      padding: 0 30px;
-      display: block;
-      text-decoration: none;
-    }
-
-    .nav-link {
-      color: var(--text-muted) !important;
-      padding: 14px 30px !important;
-      font-weight: 500;
-      transition: 0.3s;
-      border-radius: 0 50px 50px 0;
-      margin-right: 20px;
-      display: flex;
-      align-items: center;
-    }
-
-    .nav-link i { margin-right: 15px; font-size: 1.1rem; }
-
-    .nav-link:hover, .active-link {
-      background: rgba(99, 102, 241, 0.1);
-      color: white !important;
-    }
-
-    .active-link {
-      border-left: 4px solid var(--neon-blue);
-      background: linear-gradient(90deg, rgba(99, 102, 241, 0.15), transparent) !important;
-    }
-
-    /* --- Main Content Area --- */
-    .main-content {
-      margin-left: 280px;
-      padding: 40px 50px;
-      min-height: 100vh;
-      background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.08), transparent);
-    }
-
-    .header-user {
-      background: rgba(255, 255, 255, 0.03);
-      padding: 8px 20px;
-      border-radius: 50px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    /* --- Stat Cards --- */
-    .stat-card {
-      background: var(--card-bg);
-      border-radius: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      padding: 25px;
-      transition: 0.3s;
-    }
-
-    .stat-card:hover { transform: translateY(-5px); border-color: var(--neon-blue); }
-
-    .stat-icon {
-      width: 50px;
-      height: 50px;
-      border-radius: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-    }
-
-    /* --- Table Styling --- */
-    .table-container {
-      background: var(--card-bg);
-      border-radius: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      overflow: hidden;
-    }
-
-    .table { color: white; margin-bottom: 0; }
-    .table thead { background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .table th { font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; padding: 20px; }
-    .table td { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.03); }
-
-    .badge-pending { background: rgba(255, 193, 7, 0.1); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.2); }
-    .badge-success { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
-
-    .btn-action {
-      background: var(--neon-blue);
-      border: none;
-      color: white;
-      padding: 6px 15px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-
-    @media (max-width: 992px) {
-      .sidebar { width: 80px; }
-      .sidebar span, .brand-logo span { display: none; }
-      .main-content { margin-left: 80px; }
-    }
-  </style>
-</head>
-<body>
-
-<div class="d-flex">
-  <nav class="sidebar vh-100 position-fixed">
-    <a href="#" class="brand-logo">Event<span>Pro.</span></a>
-
-    <div class="nav flex-column">
-      <a href="#" class="nav-link active-link" onclick="showDashboard()">
-        <i class="fas fa-th-large"></i> <span>Overview</span>
-      </a>
-      <a href="admin_analytics.html" class="nav-link">
-        <i class="fas fa-chart-pie"></i> <span>Analytics</span>
-      </a>
-      <a href="manage_vendors.html" class="nav-link">
-        <i class="fas fa-store"></i> <span>Manage Vendors</span>
-      </a>
-      <a href="#" class="nav-link" onclick="showClients()">
-        <i class="fas fa-users"></i> <span>Manage Clients</span>
-      </a>
-      <a href="#" class="nav-link" onclick="showPayments()">
-        <i class="fas fa-hand-holding-usd"></i> <span>Payments</span>
-      </a>
-      <a href="#" class="nav-link" onclick="showCategories()">
-        <i class="fas fa-tags"></i> <span>Categories</span>
-      </a>
-      <a href="#" class="nav-link" onclick="showInvoices()">
-        <i class="fas fa-file-invoice"></i> <span>Invoices</span>
-      </a>
-
-      <div style="margin-top: auto; padding-bottom: 30px;">
-        <hr class="mx-4 opacity-10">
-        <a href="#" onclick="logout()" class="nav-link text-danger">
-          <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
-        </a>
-      </div>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Dashboard — EventPro</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head><body>
+<div class="df" style="min-height:100vh;">
+<aside class="sb">
+  <div class="sb-logo"><div class="logo">EventPro</div><div class="sub">Admin Control</div></div>
+  <nav class="sb-nav"><ul>
+    <div class="sb-sec">Main</div>
+    <li><a class="sb-link active" id="nl-ov" onclick="show('overview',this)"><i class="fas fa-th-large"></i> Overview</a></li>
+    <li><a class="sb-link" id="nl-ev" onclick="show('events',this)"><i class="fas fa-calendar-alt"></i> Event Requests</a></li>
+    <li><a class="sb-link" id="nl-cl" onclick="show('clients',this)"><i class="fas fa-users"></i> Clients</a></li>
+    <div class="sb-sec">Management</div>
+    <li><a class="sb-link" href="manageVendors.html"><i class="fas fa-store"></i> Vendors</a></li>
+    <li><a class="sb-link" id="nl-pay" onclick="show('payments',this)"><i class="fas fa-credit-card"></i> Payments</a></li>
+    <li><a class="sb-link" id="nl-inv" onclick="show('invoices',this)"><i class="fas fa-file-invoice"></i> Invoices</a></li>
+    <li><a class="sb-link" id="nl-cat" onclick="show('categories',this)"><i class="fas fa-tags"></i> Categories</a></li>
+  </ul></nav>
+  <div class="sb-foot"><div class="sb-user">
+    <div class="sb-av" id="sb-av">A</div>
+    <div><div class="sb-uname" id="sb-nm">Admin</div><div class="sb-urole">Administrator</div></div>
+    <button class="sb-logout" onclick="Auth.logout()"><i class="fas fa-sign-out-alt"></i></button>
+  </div></div>
+</aside>
+<div class="main" style="flex:1;">
+  <div class="topbar">
+    <div><div class="pg-title" id="pg-t">System Overview</div><div class="pg-sub" id="pg-s">Welcome back</div></div>
+    <div class="df g12">
+      <button class="btn btn-outline btn-sm" onclick="loadOverview()"><i class="fas fa-sync-alt"></i> Refresh</button>
+      <button class="btn btn-gold btn-sm" onclick="show('invoices',null);openModal('add-inv-modal')"><i class="fas fa-plus"></i> New Invoice</button>
     </div>
-  </nav>
+  </div>
+  <div class="area">
 
-  <main class="main-content flex-grow-1">
-    <header class="d-flex justify-content-between align-items-center mb-5">
-      <div>
-        <h2 class="fw-bold mb-1">System Control</h2>
-        <p class="text-muted m-0">Managing <span class="text-white fw-bold" id="headerEventCount">24</span> active operations today.</p>
+    <!-- OVERVIEW -->
+    <div id="sec-overview">
+      <div class="g g4 mb24">
+        <div class="stat"><div class="stat-ic" style="background:rgba(91,168,245,.1);color:var(--blue);"><i class="fas fa-calendar-alt"></i></div><div class="stat-val" id="st-ev">—</div><div class="stat-lbl">Total Events</div></div>
+        <div class="stat"><div class="stat-ic" style="background:rgba(245,185,66,.1);color:var(--yellow);"><i class="fas fa-clock"></i></div><div class="stat-val" id="st-pend">—</div><div class="stat-lbl">Pending</div></div>
+        <div class="stat"><div class="stat-ic" style="background:rgba(34,201,139,.1);color:var(--green);"><i class="fas fa-users"></i></div><div class="stat-val" id="st-cl">—</div><div class="stat-lbl">Clients</div></div>
+        <div class="stat"><div class="stat-ic" style="background:rgba(201,168,76,.1);color:var(--gold);"><i class="fas fa-coins"></i></div><div class="stat-val" id="st-rev">—</div><div class="stat-lbl">Revenue LKR</div></div>
       </div>
-      <div class="header-user d-flex align-items-center gap-3">
-        <div class="text-end d-none d-md-block">
-          <small class="text-muted d-block" style="font-size: 0.7rem;">ADMINISTRATOR</small>
-          <span class="fw-bold" id="adminName">Shehan Nethsara</span>
-        </div>
-        <img src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff" class="rounded-circle" width="40">
-      </div>
-    </header>
-
-    <div class="row g-4 mb-5" id="sectionStats">
-      <div class="col-md-4">
-        <div class="stat-card">
-          <div class="d-flex justify-content-between align-items-start">
-            <div>
-              <p class="text-muted small mb-1">Total Bookings</p>
-              <h3 class="fw-bold m-0" id="totalEvents">0</h3>
-            </div>
-            <div class="stat-icon bg-primary bg-opacity-10 text-primary">
-              <i class="fas fa-calendar-check"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="stat-card">
-          <div class="d-flex justify-content-between align-items-start">
-            <div>
-              <p class="text-muted small mb-1">Pending Requests</p>
-              <h3 class="fw-bold m-0" id="pendingRequests">0</h3>
-            </div>
-            <div class="stat-icon bg-warning bg-opacity-10 text-warning">
-              <i class="fas fa-clock"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="stat-card">
-          <div class="d-flex justify-content-between align-items-start">
-            <div>
-              <p class="text-muted small mb-1">Net Revenue (LKR)</p>
-              <h3 class="fw-bold m-0" id="statTotalRevenue">0.00</h3>
-            </div>
-            <div class="stat-icon bg-success bg-opacity-10 text-success">
-              <i class="fas fa-wallet"></i>
-            </div>
-          </div>
-        </div>
+      <div class="g g2">
+        <div class="card"><div class="card-hd"><div class="card-title">Events by Status</div></div><div class="card-bd" style="height:230px;"><canvas id="chart"></canvas></div></div>
+        <div class="card"><div class="card-hd"><div class="card-title">Recent Requests</div></div><div id="recent" style="padding:0;"></div></div>
       </div>
     </div>
 
-    <div id="sectionEvents">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold m-0">Recent Event Requests</h4>
-        <button class="btn btn-export btn-sm" style="background: rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 20px;" onclick="loadAllRequests()">
-          <i class="fas fa-sync-alt me-2"></i> Sync Data
-        </button>
+    <!-- EVENTS -->
+    <div id="sec-events" style="display:none;">
+      <div class="df jb ac mb16">
+        <div style="font-family:var(--ff);font-size:1.2rem;font-weight:600;">All Event Requests</div>
+        <select id="filter-st" class="fc" style="width:160px;" onchange="loadEvents()"><option value="">All Statuses</option><option>PENDING</option><option>APPROVED</option><option>CONFIRMED</option><option>CANCELLED</option></select>
       </div>
-
-      <div class="table-container shadow-lg">
-        <table class="table align-middle">
-          <thead>
-          <tr>
-            <th>Client / Event ID</th>
-            <th>Type</th>
-            <th>Planned Date</th>
-            <th>Status</th>
-            <th class="text-center">Action</th>
-          </tr>
-          </thead>
-          <tbody id="adminTableBody">
-          </tbody>
-        </table>
-      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Title</th><th>Client</th><th>Type</th><th>Date</th><th>Status</th><th>Vendor</th><th>Actions</th></tr></thead>
+      <tbody id="ev-tb"></tbody></table></div>
     </div>
 
-    <div id="sectionClients" style="display:none;" class="mt-4">
-      <h4 class="fw-bold mb-4">Registered Clients</h4>
-      <div class="table-container"><table class="table"><tbody id="clientTableBody"></tbody></table></div>
+    <!-- CLIENTS -->
+    <div id="sec-clients" style="display:none;">
+      <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
+      <tbody id="cl-tb"></tbody></table></div>
     </div>
 
-    <div id="sectionPayments" style="display:none;" class="mt-4">
-      <h4 class="fw-bold mb-4 text-success">Payment Tracking</h4>
-      <div class="table-container"><table class="table"><tbody id="paymentTableBody"></tbody></table></div>
+    <!-- PAYMENTS -->
+    <div id="sec-payments" style="display:none;">
+      <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Invoice</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody id="pay-tb"></tbody></table></div>
     </div>
 
-    <div id="sectionCategories" style="display:none;" class="mt-4">
-      <div class="d-flex justify-content-between mb-4">
-        <h4 class="fw-bold">Event Categories</h4>
-        <button class="btn btn-action" onclick="showAddCategoryModal()">+ New Category</button>
-      </div>
-      <div class="table-container"><table class="table"><tbody id="categoryTableBody"></tbody></table></div>
+    <!-- INVOICES -->
+    <div id="sec-invoices" style="display:none;">
+      <div class="df jb ac mb16"><div style="font-family:var(--ff);font-size:1.2rem;font-weight:600;">All Invoices</div><button class="btn btn-gold" onclick="openModal('add-inv-modal')"><i class="fas fa-plus"></i> Create Invoice</button></div>
+      <div class="tbl-wrap"><table><thead><tr><th>Invoice #</th><th>Client</th><th>Event</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="inv-tb"></tbody></table></div>
     </div>
 
-    <div id="sectionInvoices" style="display:none;" class="mt-4">
-      <h4 class="fw-bold mb-4">Invoices & Reports</h4>
-      <div class="table-container"><table class="table"><tbody id="invoiceTableBody"></tbody></table></div>
+    <!-- CATEGORIES -->
+    <div id="sec-categories" style="display:none;">
+      <div class="df jb ac mb16"><div style="font-family:var(--ff);font-size:1.2rem;font-weight:600;">Event Categories</div><button class="btn btn-gold" onclick="openModal('add-cat-modal')"><i class="fas fa-plus"></i> Add Category</button></div>
+      <div class="g g3" id="cat-grid"></div>
     </div>
 
-    <div class="row mt-5">
-      <div class="col-12">
-        <div class="stat-card">
-          <h5 class="fw-bold mb-4">Booking Activity</h5>
-          <canvas id="bookingChart" style="max-height: 250px;"></canvas>
-        </div>
-      </div>
-    </div>
+  </div>
+</div></div>
 
-  </main>
+<!-- ASSIGN EVENT MODAL -->
+<div class="modal-ov" id="assign-modal">
+  <div class="modal-box" style="max-width:500px;">
+    <div class="modal-hd"><div class="modal-title">Manage Event</div><button class="modal-x" onclick="closeModal('assign-modal')"><i class="fas fa-times"></i></button></div>
+    <div class="modal-bd">
+      <div id="ev-info" style="background:var(--bg2);border-radius:9px;padding:14px;margin-bottom:16px;font-size:.84rem;"></div>
+      <div class="fg"><label class="fl">Assign Vendor</label><select id="vsel" class="fc"><option value="">— No Vendor —</option></select></div>
+      <div class="fg"><label class="fl">Update Status</label><select id="ssel" class="fc"><option value="APPROVED">Approved</option><option value="CONFIRMED">Confirmed</option><option value="CANCELLED">Cancelled</option></select></div>
+    </div>
+    <div class="modal-ft"><button class="btn btn-outline" onclick="closeModal('assign-modal')">Cancel</button><button class="btn btn-gold" id="assign-btn" onclick="saveAssign()"><i class="fas fa-check"></i> Save</button></div>
+  </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="js/admin.js"></script>
-<script>
-  // Auth Guard
-  if (localStorage.getItem('userRole') !== 'ADMIN') { window.location.href = 'login.html'; }
-  document.getElementById('adminName').innerText = localStorage.getItem('userEmail').split('@')[0].toUpperCase();
+<!-- ADD INVOICE MODAL -->
+<div class="modal-ov" id="add-inv-modal">
+  <div class="modal-box">
+    <div class="modal-hd"><div class="modal-title">Create Invoice</div><button class="modal-x" onclick="closeModal('add-inv-modal')"><i class="fas fa-times"></i></button></div>
+    <div class="modal-bd">
+      <div class="fg"><label class="fl">Event</label><select id="inv-ev" class="fc"><option value="">— Select Event —</option></select></div>
+      <div class="fg"><label class="fl">Amount (LKR)</label><input type="number" id="inv-amt" class="fc" placeholder="e.g. 150000"></div>
+      <div class="fg"><label class="fl">Due Date</label><input type="date" id="inv-due" class="fc"></div>
+      <div class="fg"><label class="fl">Notes</label><textarea id="inv-notes" class="fc" rows="2" placeholder="Optional notes"></textarea></div>
+    </div>
+    <div class="modal-ft"><button class="btn btn-outline" onclick="closeModal('add-inv-modal')">Cancel</button><button class="btn btn-gold" onclick="createInvoice()"><i class="fas fa-file-invoice"></i> Create</button></div>
+  </div>
+</div>
 
-  function logout() {
-    if(confirm("Exit Command Center?")) { localStorage.clear(); window.location.href = 'login.html'; }
-  }
-</script>
-</body>
-</html>
+<!-- ADD CATEGORY MODAL -->
+<div class="modal-ov" id="add-cat-modal">
+  <div class="modal-box">
+    <div class="modal-hd"><div class="modal-title">Add Category</div><button class="modal-x" onclick="closeModal('add-cat-modal')"><i class="fas fa-times"></i></button></div>
+    <div class="modal-bd">
+      <div class="fg"><label class="fl">Name</label><input type="text" id="cat-nm" class="fc" placeholder="e.g. GALA"></div>
+      <div class="fg"><label class="fl">Description</label><input type="text" id="cat-desc" class="fc" placeholder="Short description"></div>
+    </div>
+    <div class="modal-ft"><button class="btn btn-outline" onclick="closeModal('add-cat-modal')">Cancel</button><button class="btn btn-gold" onclick="addCat()"><i class="fas fa-plus"></i> Add</button></div>
+  </div>
+</div>
+
+<div id="toast-cnt"></div>
+<script src="js/app.js"></script>
+<script>
+const CAT_IMGS={WEDDING:'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=600&auto=format&fit=crop',BIRTHDAY:'https://images.unsplash.com/photo-1530103043960-ef38714abb15?q=80&w=600&auto=format&fit=crop',CORPORATE:'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=600&auto=format&fit=crop',CONCERT:'https://images.unsplash.com/photo-1459749411177-042180ce6742?q=80&w=600&auto=format&fit=crop',GRADUATION:'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=600&auto=format&fit=crop',GALA:'https://images.unsplash.com/photo-1478147427282-58a87a120781?q=80&w=600&auto=format&fit=crop',DEFAULT:'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=600&auto=format&fit=crop'};
+let curEvId=null;
+document.addEventListener('DOMContentLoaded',()=>{
+  if(!Auth.guard('ADMIN'))return;
+  const n=Auth.name();document.getElementById('sb-nm').textContent=n;document.getElementById('sb-av').textContent=n.charAt(0);document.getElementById('pg-s').textContent='Welcome back, '+n;
+  loadOverview();
+});
+function show(sec,el){
+  ['overview','events','clients','payments','invoices','categories'].forEach(s=>document.getElementById('sec-'+s).style.display=s===sec?'block':'none');
+  document.querySelectorAll('.sb-link').forEach(l=>l.classList.remove('active'));if(el)el.classList.add('active');
+  const titles={overview:'System Overview',events:'Event Requests',clients:'Clients',payments:'Payments',invoices:'Invoices',categories:'Categories'};
+  document.getElementById('pg-t').textContent=titles[sec]||sec;
+  if(sec==='events')loadEvents();if(sec==='clients')loadClients();if(sec==='payments')loadPayments();if(sec==='invoices')loadInvoices();if(sec==='categories')loadCats();
+}
+async function loadOverview(){
+  try{
+    const[evs,users,pays]=await Promise.all([api('GET','/events/all').catch(()=>[]),api('GET','/users/all').catch(()=>[]),api('GET','/payments/all').catch(()=>[])]);
+    const pend=evs.filter(e=>e.status==='PENDING').length;
+    const rev=pays.reduce((s,p)=>s+(p.paidAmount||0),0);
+    document.getElementById('st-ev').textContent=evs.length;
+    document.getElementById('st-pend').textContent=pend;
+    document.getElementById('st-cl').textContent=users.filter(u=>u.role==='CLIENT').length;
+    document.getElementById('st-rev').textContent=rev>0?(rev/1000).toFixed(0)+'K':'0';
+    // Chart
+    const counts={};evs.forEach(e=>{counts[e.status]=(counts[e.status]||0)+1;});
+    const ctx=document.getElementById('chart').getContext('2d');
+    if(window._chart)window._chart.destroy();
+    window._chart=new Chart(ctx,{type:'doughnut',data:{labels:Object.keys(counts),datasets:[{data:Object.values(counts),backgroundColor:['#F5B942','#22C98B','#5BA8F5','#F06060','#C9A84C'],borderWidth:0}]},options:{plugins:{legend:{labels:{color:'#9BA5BE',font:{family:'Inter',size:12}}}},cutout:'68%'}});
+    // Recent
+    const recent=evs.slice(-5).reverse();
+    document.getElementById('recent').innerHTML=recent.length?recent.map(e=>`<div class="df jb ac" style="padding:11px 18px;border-bottom:1px solid rgba(255,255,255,.03);"><div><div style="font-size:.85rem;font-weight:500;">${e.title}</div><div style="font-size:.74rem;color:var(--text3);">${e.clientEmail||'—'}</div></div>${badge(e.status)}</div>`).join(''):'<div class="empty-st" style="padding:30px;"><i class="fas fa-inbox"></i><h4>No events</h4></div>';
+  }catch(e){console.error(e);}
+}
+async function loadEvents(){
+  const tb=document.getElementById('ev-tb'),filter=document.getElementById('filter-st').value;
+  tb.innerHTML=loadRow(8);
+  try{
+    let evs=await api('GET','/events/all');if(filter)evs=evs.filter(e=>e.status===filter);
+    if(!evs.length){tb.innerHTML=emptyRow(8);return;}
+    const vendors=await api('GET','/vendors/all').catch(()=>[]);
+    document.getElementById('vsel').innerHTML='<option value="">— No Vendor —</option>'+vendors.map(v=>`<option value="${v.id}">${v.name} (${v.type})</option>`).join('');
+    document.getElementById('inv-ev').innerHTML='<option value="">— Select Event —</option>'+evs.filter(e=>e.status!=='CANCELLED').map(e=>`<option value="${e.id}">${e.title}</option>`).join('');
+    tb.innerHTML=evs.map(e=>`<tr>
+      <td><span class="gold bold">#${e.id}</span></td><td><strong>${e.title}</strong></td>
+      <td style="font-size:.8rem;color:var(--text3);">${e.clientEmail||'—'}</td><td>${e.type||'—'}</td>
+      <td>${fDate(e.date)}</td><td>${badge(e.status)}</td>
+      <td style="font-size:.8rem;">${e.vendorName||'<span class="muted">Unassigned</span>'}</td>
+      <td><div class="df g8"><button class="btn btn-outline btn-sm" onclick='openAssign(${JSON.stringify(e).replace(/'/g,"\\'")})'><i class="fas fa-edit"></i> Manage</button>${e.status!=='CANCELLED'?`<button class="btn btn-red btn-sm" onclick="cancelEv(${e.id})"><i class="fas fa-times"></i></button>`:''}</div></td>
+    </tr>`).join('');
+  }catch(ex){tb.innerHTML=`<tr><td colspan="8"><div class="empty-st"><i class="fas fa-exclamation-circle"></i><h4>${ex.message}</h4></div></td></tr>`;}
+}
+function openAssign(ev){
+  curEvId=ev.id;
+  document.getElementById('ev-info').innerHTML=`<strong>${ev.title}</strong> &nbsp;${badge(ev.status)}<br><span style="color:var(--text3);font-size:.78rem;">${ev.clientEmail||''} · ${fDate(ev.date)}</span>`;
+  document.getElementById('ssel').value=ev.status;
+  openModal('assign-modal');
+}
+async function saveAssign(){
+  const status=document.getElementById('ssel').value,vid=document.getElementById('vsel').value,btn=document.getElementById('assign-btn');
+  btn.disabled=true;btn.innerHTML='<div class="sp"></div> Saving...';
+  try{
+    await api('PUT',`/events/${curEvId}/status?status=${status}`);
+    if(vid)await api('PUT',`/events/${curEvId}/assign-vendor?vendorId=${vid}`).catch(()=>{});
+    toast('Event updated!','success');closeModal('assign-modal');loadEvents();
+  }catch(e){toast(e.message,'error');}
+  finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-check"></i> Save';}
+}
+async function cancelEv(id){if(!confirm('Cancel event?'))return;try{await api('PUT',`/events/${id}/status?status=CANCELLED`);toast('Cancelled.','info');loadEvents();}catch(e){toast(e.message,'error');}}
+async function loadClients(){
+  const tb=document.getElementById('cl-tb');tb.innerHTML=loadRow(5);
+  try{
+    const users=await api('GET','/users/all');
+    if(!users.length){tb.innerHTML=emptyRow(5,'No users found');return;}
+    tb.innerHTML=users.map(u=>`<tr><td><span class="gold bold">#${u.id}</span></td><td><strong>${u.name||'—'}</strong></td><td>${u.email}</td><td>${badge(u.role||'CLIENT')}</td><td><button class="btn btn-red btn-sm" onclick="delUser(${u.id})"><i class="fas fa-trash"></i> Delete</button></td></tr>`).join('');
+  }catch(e){tb.innerHTML=`<tr><td colspan="5"><div class="empty-st"><i class="fas fa-exclamation-circle"></i><h4>${e.message}</h4></div></td></tr>`;}
+}
+async function delUser(id){if(!confirm('Delete user?'))return;try{await api('DELETE',`/users/${id}`);toast('Deleted.','info');loadClients();}catch(e){toast(e.message,'error');}}
+async function loadPayments(){
+  const tb=document.getElementById('pay-tb');tb.innerHTML=loadRow(6);
+  try{
+    const pays=await api('GET','/payments/all');
+    if(!pays.length){tb.innerHTML=emptyRow(6,'No payments yet');return;}
+    tb.innerHTML=pays.map(p=>`<tr><td><span class="gold bold">#${p.id}</span></td><td>#INV-${p.invoiceId||'—'}</td><td><strong>${fLKR(p.paidAmount)}</strong></td><td>${p.paymentMethod||'—'}</td><td>${fDate(p.paymentDate||p.createdAt)}</td><td>${badge('PAID')}</td></tr>`).join('');
+  }catch(e){tb.innerHTML=`<tr><td colspan="6"><div class="empty-st"><i class="fas fa-exclamation-circle"></i><h4>${e.message}</h4></div></td></tr>`;}
+}
+async function loadInvoices(){
+  const tb=document.getElementById('inv-tb');tb.innerHTML=loadRow(7);
+  try{
+    const invs=await api('GET','/invoices/all');
+    if(!invs.length){tb.innerHTML=emptyRow(7,'No invoices yet');return;}
+    tb.innerHTML=invs.map(i=>`<tr><td><span class="gold bold">#INV-${i.id}</span></td><td style="font-size:.8rem;">${i.clientEmail||'—'}</td><td>${i.eventTitle||'—'}</td><td><strong>${fLKR(i.amount)}</strong></td><td>${fDate(i.dueDate)}</td><td>${badge(i.status==='PAID'?'PAID':'UNPAID')}</td>
+    <td><div class="df g8"><button class="btn btn-outline btn-sm" onclick="viewInv(${i.id})"><i class="fas fa-eye"></i></button><button class="btn btn-red btn-sm" onclick="delInv(${i.id})"><i class="fas fa-trash"></i></button></div></td></tr>`).join('');
+  }catch(e){tb.innerHTML=`<tr><td colspan="7"><div class="empty-st"><i class="fas fa-exclamation-circle"></i><h4>${e.message}</h4></div></td></tr>`;}
+}
+async function createInvoice(){
+  const evId=document.getElementById('inv-ev').value,amt=document.getElementById('inv-amt').value,due=document.getElementById('inv-due').value;
+  if(!evId||!amt||!due){toast('Fill all required fields.','error');return;}
+  try{await api('POST','/invoices/save',{eventId:parseInt(evId),amount:parseFloat(amt),dueDate:due,status:'UNPAID',notes:document.getElementById('inv-notes').value});toast('Invoice created!','success');closeModal('add-inv-modal');loadInvoices();}
+  catch(e){toast(e.message,'error');}
+}
+function viewInv(id){localStorage.setItem('viewInvoiceId',id);window.open('invoiceView.html','_blank');}
+async function delInv(id){if(!confirm('Delete invoice?'))return;try{await api('DELETE',`/invoices/${id}`);toast('Deleted.','info');loadInvoices();}catch(e){toast(e.message,'error');}}
+async function loadCats(){
+  const g=document.getElementById('cat-grid');g.innerHTML='<div class="load-st" style="grid-column:1/-1;"><div class="sp"></div></div>';
+  try{
+    const cats=await api('GET','/categories/all');
+    g.innerHTML=cats.map(c=>`<div class="cat-card" style="cursor:default;">
+      <img src="${CAT_IMGS[c.name]||CAT_IMGS.DEFAULT}" alt="${c.name}" loading="lazy">
+      <div class="cat-ov"><div class="cat-name">${c.name}</div><div class="cat-sub">${c.description||''}</div></div>
+      <button onclick="delCat('${c.id}')" style="position:absolute;top:10px;left:10px;background:rgba(240,96,96,.85);border:none;border-radius:6px;color:#fff;cursor:pointer;padding:5px 9px;font-size:.73rem;"><i class="fas fa-trash"></i></button>
+    </div>`).join('');
+  }catch(e){g.innerHTML=`<div style="grid-column:1/-1"><div class="empty-st"><i class="fas fa-exclamation-circle"></i><h4>${e.message}</h4></div></div>`;}
+}
+async function addCat(){
+  const nm=document.getElementById('cat-nm').value.trim().toUpperCase(),desc=document.getElementById('cat-desc').value.trim();
+  if(!nm){toast('Enter category name.','error');return;}
+  try{await api('POST','/categories/save',{name:nm,description:desc});toast('Category added!','success');closeModal('add-cat-modal');document.getElementById('cat-nm').value='';document.getElementById('cat-desc').value='';loadCats();}
+  catch(e){toast(e.message,'error');}
+}
+async function delCat(id){if(!confirm('Delete?'))return;try{await api('DELETE',`/categories/${id}`);toast('Deleted.','info');loadCats();}catch(e){toast(e.message,'error');}}
+</script></body></html>

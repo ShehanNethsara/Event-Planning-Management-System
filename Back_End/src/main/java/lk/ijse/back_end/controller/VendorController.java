@@ -30,4 +30,14 @@ public class VendorController {
     public ResponseEntity<List<VendorDTO>> getVendorsByType(@PathVariable String type) {
         return ResponseEntity.ok(vendorService.getVendorsByType(type));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteVendor(@PathVariable Long id) {
+        try {
+            vendorService.deleteVendor(id);
+            return ResponseEntity.ok("Vendor deleted successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body("Vendor not found: " + e.getMessage());
+        }
+    }
 }

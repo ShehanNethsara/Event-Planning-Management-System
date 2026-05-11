@@ -1,45 +1,42 @@
 package lk.ijse.back_end.controller;
 
-// සටහන: ඔයාට Category සඳහා වෙනම Service එකක් නැති නිසා,
-// මම දැනට සරලව static ලිස්ට් එකක් හෝ පවතින දත්ත එවන විදිහට මේක හදන්නම්.
-// ඔයාට Category Entity එකක් තියෙනවා නම් ඒක පාවිච්චි කරන්න.
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
+
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/categories")
 @CrossOrigin(origins = "*")
 public class CategoryController {
 
+    private static final List<Map<String, String>> categories = new ArrayList<>(Arrays.asList(
+        new HashMap<>(Map.of("id", "1", "name", "WEDDING", "description", "Marriage ceremonies and receptions")),
+        new HashMap<>(Map.of("id", "2", "name", "BIRTHDAY", "description", "Birthday parties and celebrations")),
+        new HashMap<>(Map.of("id", "3", "name", "CORPORATE", "description", "Business events and conferences")),
+        new HashMap<>(Map.of("id", "4", "name", "CONCERT", "description", "Music events and shows"))
+    ));
+    private static long nextId = 5;
+
     @GetMapping("/all")
     public ResponseEntity<?> getAllCategories() {
-        // දැනට පරීක්ෂා කිරීමට sample දත්ත කිහිපයක් යවමු
-        List<Map<String, String>> categories = new ArrayList<>();
-
-        Map<String, String> c1 = new HashMap<>();
-        c1.put("id", "1");
-        c1.put("name", "WEDDING");
-        c1.put("description", "Marriage ceremonies and receptions");
-
-        Map<String, String> c2 = new HashMap<>();
-        c2.put("id", "2");
-        c2.put("name", "BIRTHDAY");
-        c2.put("description", "Birthday parties and celebrations");
-
-        categories.add(c1);
-        categories.add(c2);
-
         return ResponseEntity.ok(categories);
     }
 
     @PostMapping("/save")
     public ResponseEntity<?> saveCategory(@RequestBody Map<String, String> payload) {
-        // අලුත් Category එකක් save කරන logic එක (දැනට success පණිවිඩයක් පමණයි)
-        return ResponseEntity.ok("Category Saved Successfully!");
+        Map<String, String> newCat = new HashMap<>();
+        newCat.put("id", String.valueOf(nextId++));
+        newCat.put("name", payload.getOrDefault("name", "NEW"));
+        newCat.put("description", payload.getOrDefault("description", "General Service"));
+        categories.add(newCat);
+        return ResponseEntity.ok(newCat);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable String id) {
+        boolean removed = categories.removeIf(c -> c.get("id").equals(id));
+        if (removed) return ResponseEntity.ok("Category deleted!");
+        return ResponseEntity.status(404).body("Category not found!");
     }
 }

@@ -1,5 +1,6 @@
 package lk.ijse.back_end.config;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,7 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
 
 @Component
 public class JwtFilterConfig extends OncePerRequestFilter {
@@ -32,7 +32,13 @@ public class JwtFilterConfig extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            email = jwtUtil.extractEmail(token);
+            try {
+                email = jwtUtil.extractEmail(token);
+            } catch (ExpiredJwtException e) {
+                System.out.println("JWT Expired - user must re-login: " + e.getMessage().split("\\.")[0]);
+            } catch (Exception e) {
+                System.out.println("JWT Invalid: " + e.getMessage());
+            }
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {

@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vendor Dashboard — EventPro</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></head><body>
+<div class="df" style="min-height:100vh;">
+<aside class="sb">
+  <div class="sb-logo"><div class="logo">EventPro</div><div class="sub">Vendor Portal</div></div>
+  <nav class="sb-nav"><ul>
+    <li><a class="sb-link active"><i class="fas fa-briefcase"></i> My Assignments</a></li>
+  </ul></nav>
+  <div class="sb-foot"><div class="sb-user">
+    <div class="sb-av" id="sb-av">V</div>
+    <div><div class="sb-uname" id="sb-nm">Vendor</div><div class="sb-urole">Service Provider</div></div>
+    <button class="sb-logout" onclick="Auth.logout()"><i class="fas fa-sign-out-alt"></i></button>
+  </div></div>
+</aside>
+<div class="main" style="flex:1;">
+  <div class="topbar"><div><div class="pg-title">Vendor Dashboard</div><div class="pg-sub">Your assigned events and upcoming tasks</div></div></div>
+  <div class="area">
+    <div class="g g3 mb24">
+      <div class="stat"><div class="stat-ic" style="background:rgba(91,168,245,.1);color:var(--blue);"><i class="fas fa-calendar-alt"></i></div><div class="stat-val" id="s-total">0</div><div class="stat-lbl">Total Assigned</div></div>
+      <div class="stat"><div class="stat-ic" style="background:rgba(245,185,66,.1);color:var(--yellow);"><i class="fas fa-clock"></i></div><div class="stat-val" id="s-upcoming">0</div><div class="stat-lbl">Upcoming</div></div>
+      <div class="stat"><div class="stat-ic" style="background:rgba(34,201,139,.1);color:var(--green);"><i class="fas fa-check-circle"></i></div><div class="stat-val" id="s-done">0</div><div class="stat-lbl">Completed</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Event</th><th>Client</th><th>Date</th><th>Type</th><th>Location</th><th>Status</th></tr></thead>
+      <tbody id="jobs-tb"><tr><td colspan="6"><div class="load-st"><div class="sp"></div><span>Loading...</span></div></td></tr></tbody></table>
+    </div>
+  </div>
+</div></div>
+<div id="toast-cnt"></div>
+<script src="js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  if(!Auth.guard())return;
+  const n=Auth.name();document.getElementById('sb-nm').textContent=n;document.getElementById('sb-av').textContent=n.charAt(0);
+  loadJobs();
+});
+async function loadJobs(){
+  const tb=document.getElementById('jobs-tb');
+  try{
+    const evs=await api('GET',`/events/vendor?email=${Auth.email()}`);
+    const now=new Date();let up=0,done=0;
+    if(!evs.length){tb.innerHTML='<tr><td colspan="6"><div class="empty-st"><i class="fas fa-calendar-times"></i><h4>No assignments yet</h4><p>Events assigned to you will appear here</p></div></td></tr>';return;}
+    evs.forEach(e=>{if(new Date(e.date)>now)up++;else done++;});
+    document.getElementById('s-total').textContent=evs.length;document.getElementById('s-upcoming').textContent=up;document.getElementById('s-done').textContent=done;
+    tb.innerHTML=evs.map(e=>`<tr><td><strong>${e.title}</strong></td><td style="font-size:.8rem;color:var(--text3);">${e.clientEmail||'—'}</td><td>${fDate(e.date)}</td><td>${e.type||'—'}</td><td style="font-size:.8rem;">${e.location||'—'}</td><td>${badge(e.status)}</td></tr>`).join('');
+  }catch(e){tb.innerHTML=`<tr><td colspan="6"><div class="empty-st"><i class="fas fa-exclamation-circle"></i><h4>${e.message}</h4></div></td></tr>`;}
+}
+</script></body></html>

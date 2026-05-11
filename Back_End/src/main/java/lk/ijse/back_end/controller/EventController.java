@@ -1,6 +1,8 @@
 package lk.ijse.back_end.controller;
 
 import lk.ijse.back_end.dto.EventDTO;
+import lk.ijse.back_end.entity.User;
+import lk.ijse.back_end.repository.UserRepository;
 import lk.ijse.back_end.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,42 +19,56 @@ public class EventController {
     @Autowired
     private EventService eventService;
 
-    /**
-     * 1. Client විසින් අලුතින් Event එකක් Book කිරීම
-     */
+    @Autowired
+    private UserRepository userRepository;
+
+
     @PostMapping("/save")
-    public ResponseEntity<?> createEvent(@RequestBody EventDTO dto) {
+    public ResponseEntity<?> createEvent(@RequestBody java.util.Map<String, Object> payload) {
         try {
-            if (dto.getClientId() == null) {
-                return ResponseEntity.badRequest().body("Error: Client ID is missing!");
+            EventDTO dto = new EventDTO();
+            dto.setTitle((String) payload.get("title"));
+            dto.setType((String) payload.get("type"));
+            dto.setLocation((String) payload.get("location"));
+            dto.setDescription((String) payload.getOrDefault("notes", ""));
+            dto.setStatus("PENDING");
+
+            String dateStr = (String) payload.get("date");
+            if (dateStr != null && !dateStr.isEmpty()) {
+                dto.setDate(java.time.LocalDate.parse(dateStr));
             }
-            EventDTO savedEvent = eventService.createEvent(dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedEvent);
+
+            String email = (String) payload.get("clientEmail");
+            if (email != null && !email.isEmpty()) {
+                User user = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new RuntimeException("User not found: " + email));
+                dto.setClientId(user.getId());
+            }
+
+            if (dto.getClientId() == null) {
+                return ResponseEntity.badRequest().body("Error: Client not identified. Please login again.");
+            }
+
+            EventDTO saved = eventService.createEvent(dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Backend Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
 
-    /**
-     * 2. සියලුම Events ලබා ගැනීම (Admin Panel එක සඳහා)
-     */
+
     @GetMapping("/all")
     public ResponseEntity<List<EventDTO>> getAllEvents() {
         return ResponseEntity.ok(eventService.getAllEvents());
     }
 
-    /**
-     * 3. තමන්ගේම Events පමණක් ලබා ගැනීම (Client Dashboard එක සඳහා)
-     */
+
     @GetMapping("/my-events")
     public ResponseEntity<List<EventDTO>> getEventsByEmail(@RequestParam String email) {
         return ResponseEntity.ok(eventService.getEventsByClientEmail(email));
     }
 
-    /**
-     * 4. පවතින Event එකක Status එක පමණක් වෙනස් කිරීම (Cancel කිරීම වැනි දේට)
-     */
+
     @PutMapping("/{id}/status")
     public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestParam String status) {
         try {
@@ -63,17 +79,12 @@ public class EventController {
         }
     }
 
-    /**
-     * 5. වැදගත්ම Endpoint එක: Vendor කෙනෙක් Assign කර එකවරම Status එක Approve කිරීම
-     * URL: PUT /api/v1/events/{id}/assign-vendor?vendorId=5&status=APPROVED
-     */
     @PutMapping("/{id}/assign-vendor")
     public ResponseEntity<?> assignVendorAndApprove(
             @PathVariable Long id,
             @RequestParam Long vendorId,
-            @RequestParam String status) {
+            @RequestParam(required = false, defaultValue = "APPROVED") String status) {
         try {
-            // Service එකේදී Event එකට අදාළ Vendor ව සොයාගෙන set කර status update කළ යුතුය.
             EventDTO updatedEvent = eventService.assignVendorAndStatus(id, vendorId, status);
             return ResponseEntity.ok(updatedEvent);
         } catch (Exception e) {
@@ -82,9 +93,7 @@ public class EventController {
         }
     }
 
-    /**
-     * 6. Event එකක් Delete කිරීම
-     */
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEvent(@PathVariable Long id) {
         try {

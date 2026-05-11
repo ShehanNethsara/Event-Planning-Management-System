@@ -11,10 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
+
     @Autowired private UserRepository userRepository;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private ModelMapper modelMapper;
@@ -34,8 +36,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDTO> getAllUsers() {
-        return List.of();
+    public UserDTO getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+        return modelMapper.map(user, UserDTO.class);
     }
 
+    @Override
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(u -> modelMapper.map(u, UserDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
 }

@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My Dashboard — EventPro</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></head><body>
+<div class="df" style="min-height:100vh;">
+<aside class="sb">
+  <div class="sb-logo"><div class="logo">EventPro</div><div class="sub">Client Portal</div></div>
+  <nav class="sb-nav"><ul>
+    <li><a class="sb-link active" href="userDashboard.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+    <li><a class="sb-link" href="bookEvent.html"><i class="fas fa-calendar-plus"></i> Book Event</a></li>
+    <li><a class="sb-link" href="myInvoices.html"><i class="fas fa-file-invoice"></i> My Invoices</a></li>
+    <li><a class="sb-link" href="payment.html"><i class="fas fa-credit-card"></i> Payments</a></li>
+  </ul></nav>
+  <div class="sb-foot"><div class="sb-user">
+    <div class="sb-av" data-uav>U</div>
+    <div><div class="sb-uname" data-uname>User</div><div class="sb-urole" data-urole>CLIENT</div></div>
+    <button class="sb-logout" onclick="Auth.logout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+  </div></div>
+</aside>
+<div class="main" style="flex:1;">
+  <div class="topbar">
+    <div><div class="pg-title">My Dashboard</div><div class="pg-sub">Track and manage your events</div></div>
+    <a href="bookEvent.html" class="btn btn-gold"><i class="fas fa-plus"></i> Book Event</a>
+  </div>
+  <div class="area">
+    <div class="g g4 mb24">
+      <div class="stat"><div class="stat-ic" style="background:rgba(91,168,245,.1);color:var(--blue);"><i class="fas fa-calendar-alt"></i></div><div class="stat-val" id="s-total">0</div><div class="stat-lbl">Total Events</div></div>
+      <div class="stat"><div class="stat-ic" style="background:rgba(245,185,66,.1);color:var(--yellow);"><i class="fas fa-clock"></i></div><div class="stat-val" id="s-pending">0</div><div class="stat-lbl">Pending</div></div>
+      <div class="stat"><div class="stat-ic" style="background:rgba(34,201,139,.1);color:var(--green);"><i class="fas fa-check-circle"></i></div><div class="stat-val" id="s-confirmed">0</div><div class="stat-lbl">Confirmed</div></div>
+      <div class="stat"><div class="stat-ic" style="background:rgba(201,168,76,.1);color:var(--gold);"><i class="fas fa-file-invoice-dollar"></i></div><div class="stat-val" id="s-inv">0</div><div class="stat-lbl">Invoices</div></div>
+    </div>
+    <div class="df jb ac mb16">
+      <div style="font-family:var(--ff);font-size:1.25rem;font-weight:600;">Your Events</div>
+      <a href="bookEvent.html" class="btn btn-outline btn-sm"><i class="fas fa-plus"></i> New</a>
+    </div>
+    <div id="ev-grid" class="g g3"><div class="load-st" style="grid-column:1/-1;"><div class="sp"></div><span>Loading...</span></div></div>
+  </div>
+</div></div>
+<div id="toast-cnt"></div>
+<script src="js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  if(!Auth.guard())return;
+  fillUser();loadEvents();
+});
+async function loadEvents(){
+  const g=document.getElementById('ev-grid');
+  try{
+    const evs=await api('GET',`/events/my-events?email=${Auth.email()}`);
+    let p=0,c=0;g.innerHTML='';
+    if(!evs.length){g.innerHTML=`<div style="grid-column:1/-1"><div class="empty-st"><i class="fas fa-calendar-times"></i><h4>No Events Yet</h4><p>Start by booking your first event</p><br><a href="bookEvent.html" class="btn btn-gold" style="margin-top:10px;"><i class="fas fa-plus"></i> Book Now</a></div></div>`;return;}
+    evs.forEach(ev=>{
+      if(ev.status==='PENDING')p++;
+      if(ev.status==='CONFIRMED'||ev.status==='APPROVED')c++;
+      const d=document.createElement('div');d.className='ev-card';
+      d.innerHTML=`<img src="${eImg(ev.type)}" alt="${ev.type}" loading="lazy">
+        <div class="ev-bd">
+          <div class="df jb ac mb8"><div class="ev-title">${ev.title}</div>${badge(ev.status)}</div>
+          <div class="ev-meta"><i class="fas fa-tag"></i> ${ev.type||'—'}</div>
+          <div class="ev-meta"><i class="fas fa-calendar"></i> ${fDate(ev.date)}</div>
+          <div class="ev-meta"><i class="fas fa-map-marker-alt"></i> ${ev.location||'—'}</div>
+          <div class="df g8 mt16">
+            ${(ev.status==='APPROVED'||ev.status==='CONFIRMED')?`<a href="myInvoices.html" class="btn btn-green btn-sm"><i class="fas fa-file-invoice"></i> Invoice</a>`:''}
+            <button class="btn btn-red btn-sm" onclick="cancelEv(${ev.id})"><i class="fas fa-times"></i> Cancel</button>
+          </div>
+        </div>`;
+      g.appendChild(d);
+    });
+    document.getElementById('s-total').textContent=evs.length;
+    document.getElementById('s-pending').textContent=p;
+    document.getElementById('s-confirmed').textContent=c;
+    // Load invoice count
+    api('GET',`/invoices/client?email=${Auth.email()}`).then(invs=>document.getElementById('s-inv').textContent=invs.length).catch(()=>{});
+  }catch(e){g.innerHTML=`<div style="grid-column:1/-1"><div class="empty-st"><i class="fas fa-exclamation-circle"></i><h4>Could not load</h4><p>${e.message}</p></div></div>`;}
+}
+async function cancelEv(id){
+  if(!confirm('Cancel this event?'))return;
+  try{await api('PUT',`/events/${id}/status?status=CANCELLED`);toast('Event cancelled.','info');loadEvents();}
+  catch(e){toast(e.message,'error');}
+}
+</script></body></html>

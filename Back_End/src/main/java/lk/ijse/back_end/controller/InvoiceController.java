@@ -18,7 +18,6 @@ public class InvoiceController {
 
     @GetMapping("/my-invoices")
     public ResponseEntity<List<InvoiceDTO>> getMyInvoices(@RequestParam String email) {
-        // Logic එක Service එකට බාර දෙනවා
         List<InvoiceDTO> invoiceDTOs = invoiceService.getInvoicesByClientEmail(email);
         return ResponseEntity.ok(invoiceDTOs);
     }
