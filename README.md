@@ -461,6 +461,8 @@ git push origin feature/amazing-feature
 → MySQL service running දැයි confirm. Username/password `application.properties` ලෙ correct දැයි check.
 
 ---
+
+Demo Video : https://youtu.be/Gv7yRjj1jVg
 ## 👨‍💻 Author
 
 <div align="center">
